@@ -1,6 +1,6 @@
 # Quarkus - Logging Cloudwatch
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ## Welcome to Quarkiverse!
@@ -34,6 +34,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tr>
     <td align="center"><a href="https://medium.com/@pilhuhn"><img src="https://avatars.githubusercontent.com/u/208246?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Heiko W. Rupp</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-logging-cloudwatch/commits?author=pilhuhn" title="Code">💻</a> <a href="#maintenance-pilhuhn" title="Maintenance">🚧</a></td>
+    <td align="center"><a href="http://bennet-schulz.com"><img src="https://avatars.githubusercontent.com/u/8372856?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Bennet Schulz</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-logging-cloudwatch/commits?author=bennetelli" title="Code">💻</a> <a href="#maintenance-bennetelli" title="Maintenance">🚧</a></td>
   </tr>
 </table>
 
