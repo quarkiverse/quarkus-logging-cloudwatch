@@ -32,7 +32,7 @@ public class LoggingCloudWatchConfig {
     /**
      * Determine whether to enable the Cloudwatch logging extension.
      */
-    @ConfigItem(name = ConfigItem.PARENT)
+    @ConfigItem(defaultValue = "true")
     boolean enabled;
 
     /**
