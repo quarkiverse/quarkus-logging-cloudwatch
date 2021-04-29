@@ -1,112 +1,74 @@
-//
-// This content is generated using mvn compile and copied manually to here
-//
 [.configuration-legend]
 icon:lock[title=Fixed at build time] Configuration property fixed at build time - All other configuration properties are overridable at runtime
 [.configuration-reference.searchable, cols="80,.^10,.^10"]
 |===
 
-h|[[quarkus-freemarker_configuration]]link:#quarkus-freemarker_configuration[Configuration property]
+h|[[quarkus-log-handler-cloudwatch_configuration]]link:#quarkus-log-handler-cloudwatch_configuration[Configuration property]
 
 h|Type
 h|Default
 
-a|icon:lock[title=Fixed at build time] [[quarkus-freemarker_quarkus.freemarker.resource-paths]]`link:#quarkus-freemarker_quarkus.freemarker.resource-paths[quarkus.freemarker.resource-paths]`
+a| [[quarkus-log-cloudwatch-enabled]]`link:#quarkus-log-cloudwatch-enabled[quarkus.log.cloudwatch.enabled]`
 
 [.description]
 --
-Comma-separated list of absolute resource paths to scan recursively for templates. All tree folder from 'resource-paths' will be added as a resource. Unprefixed locations or locations starting with classpath will be processed in the same way.
---|list of string
-|`freemarker/templates`
-
-
-a| [[quarkus-freemarker_quarkus.freemarker.file-paths]]`link:#quarkus-freemarker_quarkus.freemarker.file-paths[quarkus.freemarker.file-paths]`
-
-[.description]
---
-Comma-separated of file system paths where freemarker templates are located
---|list of string
-|
-
-
-a| [[quarkus-freemarker_quarkus.freemarker.default-encoding]]`link:#quarkus-freemarker_quarkus.freemarker.default-encoding[quarkus.freemarker.default-encoding]`
-
-[.description]
---
-Set the preferred charset template files are stored in.
---|string
-|
-
-
-a| [[quarkus-freemarker_quarkus.freemarker.template-exception-handler]]`link:#quarkus-freemarker_quarkus.freemarker.template-exception-handler[quarkus.freemarker.template-exception-handler]`
-
-[.description]
---
-Sets how errors will appear. rethrow, debug, html-debug, ignore.
---|string
-|
-
-
-a| [[quarkus-freemarker_quarkus.freemarker.log-template-exceptions]]`link:#quarkus-freemarker_quarkus.freemarker.log-template-exceptions[quarkus.freemarker.log-template-exceptions]`
-
-[.description]
---
-If false, don't log exceptions inside FreeMarker that it will be thrown at you anyway.
+Set to true to enable logging to Cloudwatch
 --|boolean
-|
+|`true`
 
 
-a| [[quarkus-freemarker_quarkus.freemarker.wrap-unchecked-exceptions]]`link:#quarkus-freemarker_quarkus.freemarker.wrap-unchecked-exceptions[quarkus.freemarker.wrap-unchecked-exceptions]`
-
-[.description]
---
-Wrap unchecked exceptions thrown during template processing into TemplateException-s.
---|boolean
-|
-
-
-a| [[quarkus-freemarker_quarkus.freemarker.fallback-on-null-loop-variable]]`link:#quarkus-freemarker_quarkus.freemarker.fallback-on-null-loop-variable[quarkus.freemarker.fallback-on-null-loop-variable]`
+a| [[quarkus-log-cloudwatch-level]]`link:#quarkus-log-cloudwatch-level[quarkus.log.cloudwatch.level]`
 
 [.description]
 --
-If false, do not fall back to higher scopes when reading a null loop variable.
---|boolean
-|
+The AWS access key
+--|link:https://docs.jboss.org/jbossas/javadoc/7.1.2.Final/org/jboss/logmanager/Level.html[Level]
+
+|`WARN`
 
 
-a| [[quarkus-freemarker_quarkus.freemarker.boolean-format]]`link:#quarkus-freemarker_quarkus.freemarker.boolean-format[quarkus.freemarker.boolean-format]`
+a| [[quarkus-log-cloudwatch-access-key-id]]`link:#quarkus-log-cloudwatch-access-key-id[quarkus.log.cloudwatch.access-key-id]`
 
 [.description]
 --
-The string value for the boolean `true` and `false` values, usually intended for human consumption (not for a computer language), separated with comma.
+The AWS access key
 --|string
-|
+|`<your key>`
 
 
-a| [[quarkus-freemarker_quarkus.freemarker.number-format]]`link:#quarkus-freemarker_quarkus.freemarker.number-format[quarkus.freemarker.number-format]`
+a| [[quarkus-log-cloudwatch-access-key-]]`link:#quarkus-log-cloudwatch-access-key-[quarkus.log.cloudwatch.access-key-secret]`
 
 [.description]
 --
-Sets the default number format used to convert numbers to strings.
+The AWS secret for the key
 --|string
-|
+|`<your secret>`
 
 
-a| [[quarkus-freemarker_quarkus.freemarker.object-wrapper-expose-fields]]`link:#quarkus-freemarker_quarkus.freemarker.object-wrapper-expose-fields[quarkus.freemarker.object-wrapper-expose-fields]`
-
-[.description]
---
-If true, the object wrapper will be configured to expose fields.
---|boolean
-|
-
-
-a|icon:lock[title=Fixed at build time] [[quarkus-freemarker_quarkus.freemarker.directive-directive]]`link:#quarkus-freemarker_quarkus.freemarker.directive-directive[quarkus.freemarker.directive]`
+a| [[quarkus-log-cloudwatch-region]]`link:#quarkus-log-cloudwatch-region[quarkus.log.cloudwatch.region]`
 
 [.description]
 --
-List of directives to register with format name=classname
---|`Map<String,String>`
-|
+The region to log to
+--|string
+|`us-east-1`
+
+
+a| [[quarkus-log-cloudwatch-log-group]]`link:#quarkus-log-cloudwatch-log-group[quarkus.log.cloudwatch.log-group]`
+
+[.description]
+--
+The log-group to log to. This has to exist
+--|string
+|`<my-log-goup>`
+
+
+a| [[quarkus-log-cloudwatch-log-stream-name]]`link:#quarkus-log-cloudwatch-log-stream-name[quarkus.log.cloudwatch.log-stream-name]`
+
+[.description]
+--
+The log-stream name. This is created if it does not exist
+--|string
+|`<my-log-stream>`
 
 |===
