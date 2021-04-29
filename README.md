@@ -1,4 +1,7 @@
 # Quarkus - Logging Cloudwatch
+[![Build](https://github.com/quarkiverse/quarkus-logging-cloudwatch/workflows/Build/badge.svg)](https://github.com/quarkiverse/quarkus-logging-cloudwatch/actions?query=workflow%3ABuild)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
