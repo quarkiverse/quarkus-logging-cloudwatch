@@ -5,10 +5,12 @@ import static org.hamcrest.Matchers.is;
 
 import org.junit.jupiter.api.Test;
 
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
-public class LoggingCloudwatchResourceTest {
+@QuarkusTestResource(LoggingCloudwatchResource.class)
+public class LoggingCloudwatchHandlerResourceTest {
 
     @Test
     public void testHelloEndpoint() {
