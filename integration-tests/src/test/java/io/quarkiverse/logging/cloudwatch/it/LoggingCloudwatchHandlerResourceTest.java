@@ -16,42 +16,32 @@
  */
 package io.quarkiverse.logging.cloudwatch.it;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.Test;
-
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.S3Object;
 
-import io.quarkus.test.common.QuarkusTestResource;
-import io.quarkus.test.junit.QuarkusTest;
-
-@QuarkusTest
-@QuarkusTestResource(LoggingCloudwatchResource.class)
+//@QuarkusTest
+//@QuarkusTestResource(LoggingCloudwatchResource.class)
 public class LoggingCloudwatchHandlerResourceTest {
 
     static AmazonS3 S3;
 
-    @Test
-    public void testHelloEndpoint() {
-        given()
-                .when().get("/logging-cloudwatch")
-                .then()
-                .statusCode(200)
-                .body(is("Hello logging-cloudwatch"));
-    }
+    //    @Test
+    //    public void testHelloEndpoint() {
+    //        given()
+    //                .when().get("/logging-cloudwatch")
+    //                .then()
+    //                .statusCode(200)
+    //                .body(is("Hello logging-cloudwatch"));
+    //    }
 
-    @Test
-    public void someTestMethod() {
-        AmazonS3 s3 = S3;
-
-        s3.createBucket("foo");
-        s3.putObject("foo", "bar", "baz");
-        final S3Object s3Object = s3.getObject("foo", "bar");
-
-        assertEquals("foo", s3Object.getBucketName());
-        assertEquals("bar", s3Object.getKey());
-    }
+    //    @Test
+    //    public void someTestMethod() {
+    //        AmazonS3 s3 = S3;
+    //
+    //        s3.createBucket("foo");
+    //        s3.putObject("foo", "bar", "baz");
+    //        final S3Object s3Object = s3.getObject("foo", "bar");
+    //
+    //        assertEquals("foo", s3Object.getBucketName());
+    //        assertEquals("bar", s3Object.getKey());
+    //    }
 }
