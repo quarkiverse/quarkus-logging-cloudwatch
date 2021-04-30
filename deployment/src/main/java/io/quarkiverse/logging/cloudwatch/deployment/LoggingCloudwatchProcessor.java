@@ -1,7 +1,12 @@
 package io.quarkiverse.logging.cloudwatch.deployment;
 
+import io.quarkiverse.logging.cloudwatch.LoggingCloudWatchConfig;
+import io.quarkiverse.logging.cloudwatch.LoggingCloudWatchHandlerValueFactory;
 import io.quarkus.deployment.annotations.BuildStep;
+import io.quarkus.deployment.annotations.ExecutionTime;
+import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
+import io.quarkus.deployment.builditem.LogHandlerBuildItem;
 
 class LoggingCloudwatchProcessor {
 
@@ -10,5 +15,12 @@ class LoggingCloudwatchProcessor {
     @BuildStep
     FeatureBuildItem feature() {
         return new FeatureBuildItem(FEATURE);
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.RUNTIME_INIT)
+    LogHandlerBuildItem addCloudwatchLogHandler(final LoggingCloudWatchConfig config,
+            final LoggingCloudWatchHandlerValueFactory cloudWatchHandlerValueFactory) {
+        return new LogHandlerBuildItem(cloudWatchHandlerValueFactory.create(config));
     }
 }
