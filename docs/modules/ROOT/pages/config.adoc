@@ -21,7 +21,7 @@ a| [[quarkus-log-cloudwatch-level]]`link:#quarkus-log-cloudwatch-level[quarkus.l
 
 [.description]
 --
-The AWS access key
+The java.util.logging level
 --|link:https://docs.jboss.org/jbossas/javadoc/7.1.2.Final/org/jboss/logmanager/Level.html[Level]
 
 |`WARN`
