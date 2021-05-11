@@ -23,7 +23,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.version>2.0.0.Alpha1</quarkus.version>
-    <aws.version>1.11.1014</aws.version>
+    <aws.version>1.11.1016</aws.version>
   </properties>
   <dependencyManagement>
     <dependencies>
