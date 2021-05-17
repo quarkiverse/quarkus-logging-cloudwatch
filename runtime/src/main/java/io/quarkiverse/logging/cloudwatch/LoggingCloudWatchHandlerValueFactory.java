@@ -46,6 +46,7 @@ public class LoggingCloudWatchHandlerValueFactory {
 
         // Init CloudWatch
         log.info("--- Initializing Quarkus Logging Cloudwatch Extension ---");
+        log.info("--- Logging to log-group: " + config.logGroup + " and log-stream: " + config.logStreamName + " ---");
 
         AWSLogsClientBuilder clientBuilder = AWSLogsClientBuilder.standard();
         clientBuilder.setCredentials(new CWCredentialsProvider(config));
