@@ -40,11 +40,13 @@ public class LoggingCloudWatchHandlerValueFactory {
     public RuntimeValue<Optional<Handler>> create(final LoggingCloudWatchConfig config) {
 
         if (!config.enabled) {
-            log.fine("--- LogCloudwatch is not enabled ---");
+            log.fine("--- Quarkus Logging Cloudwatch Extension is not enabled ---");
             return new RuntimeValue<>(Optional.empty());
         }
 
         // Init CloudWatch
+        log.info("--- Initializing Quarkus Logging Cloudwatch Extension ---");
+        log.info("--- Logging to log-group: " + config.logGroup + " and log-stream: " + config.logStreamName + " ---");
 
         AWSLogsClientBuilder clientBuilder = AWSLogsClientBuilder.standard();
         clientBuilder.setCredentials(new CWCredentialsProvider(config));
