@@ -30,6 +30,7 @@ import org.jboss.logmanager.ExtLogRecord;
 
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.model.InputLogEvent;
+import com.amazonaws.services.logs.model.InvalidSequenceTokenException;
 import com.amazonaws.services.logs.model.PutLogEventsRequest;
 
 public class LoggingCloudWatchHandler extends Handler {
@@ -172,14 +173,23 @@ public class LoggingCloudWatchHandler extends Handler {
                 }
 
                 if (events.size() > 0) {
-
                     PutLogEventsRequest request = new PutLogEventsRequest();
                     request.setLogEvents(events);
                     request.setLogGroupName(logGroupName);
                     request.setLogStreamName(logStreamName);
                     request.setSequenceToken(sequenceToken);
                     // Do the call and get the next token
-                    sequenceToken = awsLogs.putLogEvents(request).getNextSequenceToken();
+
+                    try {
+                        sequenceToken = awsLogs.putLogEvents(request).getNextSequenceToken();
+                    } catch (InvalidSequenceTokenException e) {
+                        String exceptionMessage = e.getMessage();
+
+                        String validSequenceToken = extractValidSequenceToken(exceptionMessage);
+
+                        request.setSequenceToken(validSequenceToken);
+                        sequenceToken = awsLogs.putLogEvents(request).getNextSequenceToken();
+                    }
                 }
 
                 if (done) {
@@ -192,6 +202,10 @@ public class LoggingCloudWatchHandler extends Handler {
                     e.printStackTrace(); // TODO: Customise this generated block
                 }
             }
+        }
+
+        private String extractValidSequenceToken(String exceptionMessage) {
+            return exceptionMessage.substring(exceptionMessage.indexOf(":") + 1, exceptionMessage.indexOf("("));
         }
     }
 }
