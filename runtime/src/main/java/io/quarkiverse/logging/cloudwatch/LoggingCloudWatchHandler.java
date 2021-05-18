@@ -165,7 +165,6 @@ public class LoggingCloudWatchHandler extends Handler {
 
         @Override
         public void run() {
-
             while (true) {
                 synchronized (eventBuffer) {
                     events = new ArrayList<>(eventBuffer);
