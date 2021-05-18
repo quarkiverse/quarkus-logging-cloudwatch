@@ -190,6 +190,7 @@ public class LoggingCloudWatchHandler extends Handler {
                         String validSequenceToken = extractValidSequenceToken(exceptionMessage);
                         sequenceToken = validSequenceToken;
                         log.info("--- valid sequence token: " + validSequenceToken + " ---");
+                        log.info("--- actual sequence token: " + sequenceToken + " ---");
 
                         PutLogEventsRequest newRequest = new PutLogEventsRequest();
                         newRequest.setLogEvents(events);
