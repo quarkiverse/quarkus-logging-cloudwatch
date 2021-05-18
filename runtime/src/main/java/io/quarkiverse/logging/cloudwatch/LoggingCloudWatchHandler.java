@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 import org.jboss.logmanager.ExtLogRecord;
 
@@ -34,6 +35,8 @@ import com.amazonaws.services.logs.model.InvalidSequenceTokenException;
 import com.amazonaws.services.logs.model.PutLogEventsRequest;
 
 public class LoggingCloudWatchHandler extends Handler {
+
+    Logger log = Logger.getLogger("LoggingCloudWatch");
 
     private String appLabel;
     private final AWSLogs awsLogs;
@@ -183,11 +186,19 @@ public class LoggingCloudWatchHandler extends Handler {
                         sequenceToken = awsLogs.putLogEvents(request).getNextSequenceToken();
                     } catch (InvalidSequenceTokenException e) {
                         String exceptionMessage = e.getMessage();
-
+                        log.info("--- exception message: " + exceptionMessage + " ---");
                         String validSequenceToken = extractValidSequenceToken(exceptionMessage);
+                        sequenceToken = validSequenceToken;
+                        log.info("--- valid sequence token: " + validSequenceToken + " ---");
+                        log.info("--- actual sequence token: " + sequenceToken + " ---");
 
-                        request.setSequenceToken(validSequenceToken);
-                        sequenceToken = awsLogs.putLogEvents(request).getNextSequenceToken();
+                        PutLogEventsRequest newRequest = new PutLogEventsRequest();
+                        newRequest.setLogEvents(events);
+                        newRequest.setLogGroupName(logGroupName);
+                        newRequest.setLogStreamName(logStreamName);
+                        newRequest.setSequenceToken(validSequenceToken);
+
+                        sequenceToken = awsLogs.putLogEvents(newRequest).getNextSequenceToken();
                     }
                 }
 
