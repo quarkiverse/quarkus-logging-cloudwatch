@@ -1,5 +1,5 @@
 [.configuration-legend]
-icon:lock[title=Fixed at build time] Configuration property fixed at build time - All other configuration properties are overridable at runtime
+icon:lock[title=Fixed at build time] Configuration property fixed at build time - All other configuration properties are overridable at runtime. Hint: If you want to use this extension in a cloud environment containing multiple instances (e.g. multiple pods, multiple instances and so on) you should not use the same log-stream-name and log-group for all the instances. The log-stream-name and log-group combination must be unique!
 [.configuration-reference.searchable, cols="80,.^10,.^10"]
 |===
 
