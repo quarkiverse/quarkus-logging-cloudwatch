@@ -44,18 +44,21 @@ public class LoggingCloudWatchHandlerValueFactory {
             return new RuntimeValue<>(Optional.empty());
         }
 
+        config.validate();
+
         // Init CloudWatch
         log.info("--- Initializing Quarkus Logging Cloudwatch Extension ---");
         log.info("--- Logging to log-group: " + config.logGroup + " and log-stream: " + config.logStreamName + " ---");
 
         AWSLogsClientBuilder clientBuilder = AWSLogsClientBuilder.standard();
         clientBuilder.setCredentials(new CWCredentialsProvider(config));
-        clientBuilder.setRegion(config.region);
+        clientBuilder.setRegion(config.region.get());
 
         AWSLogs awsLogs = clientBuilder.build();
         String token = createLogStreamIfNeeded(awsLogs, config);
 
-        LoggingCloudWatchHandler handler = new LoggingCloudWatchHandler(awsLogs, config.logGroup, config.logStreamName, token);
+        LoggingCloudWatchHandler handler = new LoggingCloudWatchHandler(awsLogs, config.logGroup.get(),
+                config.logStreamName.get(), token);
         handler.setLevel(config.level);
         handler.setAppLabel(config.appLabel.orElse(""));
         return new RuntimeValue<>(Optional.of(handler));
@@ -64,9 +67,9 @@ public class LoggingCloudWatchHandlerValueFactory {
     private String createLogStreamIfNeeded(AWSLogs awsLogs, LoggingCloudWatchConfig config) {
         String token = null;
 
-        DescribeLogStreamsRequest describeLogStreamsRequest = new DescribeLogStreamsRequest(config.logGroup);
+        DescribeLogStreamsRequest describeLogStreamsRequest = new DescribeLogStreamsRequest(config.logGroup.get());
         // We need to filter down, as CW returns by default only 50 streams and ours may not be in it.
-        describeLogStreamsRequest.withLogStreamNamePrefix(config.logStreamName);
+        describeLogStreamsRequest.withLogStreamNamePrefix(config.logStreamName.get());
         List<LogStream> logStreams = awsLogs.describeLogStreams(describeLogStreamsRequest).getLogStreams();
 
         boolean found = false;
@@ -79,7 +82,7 @@ public class LoggingCloudWatchHandlerValueFactory {
 
         if (!found) {
             CreateLogStreamResult logStream = awsLogs
-                    .createLogStream(new CreateLogStreamRequest(config.logGroup, config.logStreamName));
+                    .createLogStream(new CreateLogStreamRequest(config.logGroup.get(), config.logStreamName.get()));
         }
         return token;
     }

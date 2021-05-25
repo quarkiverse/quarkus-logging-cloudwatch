@@ -39,33 +39,33 @@ public class LoggingCloudWatchConfig {
      * CW access key ID
      */
     @ConfigItem
-    public String accessKeyId;
+    public Optional<String> accessKeyId;
 
     /**
      * CW access key secret
      *
      */
     @ConfigItem
-    public String accessKeySecret;
+    public Optional<String> accessKeySecret;
 
     /**
      * Region of deployment
      */
     @ConfigItem
-    public String region;
+    public Optional<String> region;
 
     /**
      * CW log group
      */
     @ConfigItem
-    public String logGroup;
+    public Optional<String> logGroup;
 
     /**
      * CW log stream
      *
      */
     @ConfigItem
-    public String logStreamName;
+    public Optional<String> logStreamName;
 
     /**
      * App label
@@ -81,4 +81,27 @@ public class LoggingCloudWatchConfig {
     @ConfigItem(defaultValue = "WARN")
     public Level level;
 
+    /*
+     * We need to validate that the values are present, even if marked as optional.
+     * We need to mark them as optional, as otherwise the config would mark them
+     * as bad even before the extension can check if the values are needed at all.
+     */
+    public void validate() {
+
+        if (!accessKeyId.isPresent()) {
+            throw new IllegalStateException("Access key id not provided");
+        }
+        if (!accessKeySecret.isPresent()) {
+            throw new IllegalStateException("Access key secret not provided");
+        }
+        if (!region.isPresent()) {
+            throw new IllegalStateException("Region not provided");
+        }
+        if (!logGroup.isPresent()) {
+            throw new IllegalStateException("Log group not provided");
+        }
+        if (!logStreamName.isPresent()) {
+            throw new IllegalStateException("Log stream not provided");
+        }
+    }
 }
