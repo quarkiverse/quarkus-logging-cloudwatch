@@ -40,15 +40,15 @@ public class LoggingCloudWatchHandlerValueFactory {
     public RuntimeValue<Optional<Handler>> create(final LoggingCloudWatchConfig config) {
 
         if (!config.enabled) {
-            log.fine("--- Quarkus Logging Cloudwatch Extension is not enabled ---");
+            log.fine("Quarkus Logging Cloudwatch Extension is not enabled");
             return new RuntimeValue<>(Optional.empty());
         }
 
         config.validate();
 
         // Init CloudWatch
-        log.info("--- Initializing Quarkus Logging Cloudwatch Extension ---");
-        log.info("--- Logging to log-group: " + config.logGroup + " and log-stream: " + config.logStreamName + " ---");
+        log.info("Initializing Quarkus Logging Cloudwatch Extension");
+        log.info("Logging to log-group: " + config.logGroup + " and log-stream: " + config.logStreamName);
 
         AWSLogsClientBuilder clientBuilder = AWSLogsClientBuilder.standard();
         clientBuilder.setCredentials(new CWCredentialsProvider(config));
@@ -74,7 +74,7 @@ public class LoggingCloudWatchHandlerValueFactory {
 
         boolean found = false;
         for (LogStream ls : logStreams) {
-            if (ls.getLogStreamName().equals(config.logStreamName)) {
+            if (ls.getLogStreamName().equals(config.logStreamName.get())) {
                 found = true;
                 token = ls.getUploadSequenceToken();
             }
