@@ -27,29 +27,26 @@ import com.amazonaws.services.logs.model.PutLogEventsRequest;
 
 public class LoggingCloudWatchHandler extends Handler {
 
-    Logger log = Logger.getLogger("LoggingCloudWatch");
+    private final Logger log = Logger.getLogger("LoggingCloudWatch");
 
     private String appLabel;
     private final AWSLogs awsLogs;
     private final String logStreamName;
     private final String logGroupName;
     private String sequenceToken;
+
     private volatile boolean done = false;
 
-    final List<InputLogEvent> eventBuffer;
+    private final List<InputLogEvent> eventBuffer;
 
-    private LoggingCloudWatchConfig config;
-
-    public LoggingCloudWatchHandler(AWSLogs awsLogs, String logGroup, String logStreamName, String token,
-            LoggingCloudWatchConfig config) {
+    public LoggingCloudWatchHandler(AWSLogs awsLogs, String logGroup, String logStreamName, String token) {
         this.logGroupName = logGroup;
         this.awsLogs = awsLogs;
         this.logStreamName = logStreamName;
-        this.config = config;
-        sequenceToken = token;
-        eventBuffer = new ArrayList<>();
-        Publisher publisher = new Publisher();
+        this.sequenceToken = token;
+        this.eventBuffer = new ArrayList<>();
 
+        Publisher publisher = new Publisher();
         Thread t = new Thread(publisher);
         t.setDaemon(true);
         t.start();
@@ -62,7 +59,7 @@ public class LoggingCloudWatchHandler extends Handler {
             return;
         }
 
-        ElasticCommonSchemaLogFormatter elasticCommonSchemaLogFormatter = new ElasticCommonSchemaLogFormatter(config);
+        ElasticCommonSchemaLogFormatter elasticCommonSchemaLogFormatter = new ElasticCommonSchemaLogFormatter();
         String body = elasticCommonSchemaLogFormatter.format(record);
 
         InputLogEvent logEvent = new InputLogEvent()
@@ -90,7 +87,7 @@ public class LoggingCloudWatchHandler extends Handler {
 
     private class Publisher implements Runnable {
 
-        List<InputLogEvent> events;
+        private List<InputLogEvent> events;
 
         @Override
         public void run() {
@@ -135,7 +132,7 @@ public class LoggingCloudWatchHandler extends Handler {
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace(); // TODO: Customise this generated block
+                    e.printStackTrace();
                 }
             }
         }

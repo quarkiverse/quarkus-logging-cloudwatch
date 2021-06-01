@@ -19,7 +19,7 @@ public class ElasticCommonSchemaLogFormatter extends ExtFormatter {
     //    private final String serializedAdditionalFields;
     private final String environment;
 
-    public ElasticCommonSchemaLogFormatter(LoggingCloudWatchConfig config) {
+    public ElasticCommonSchemaLogFormatter() {
         // setting this to null prevents writing it out, when unset
         //        this.serializedAdditionalFields = serializeAdditionalFields(config.additionalFields);
         this.environment = ProfileManager.getActiveProfile();
@@ -32,7 +32,7 @@ public class ElasticCommonSchemaLogFormatter extends ExtFormatter {
         EcsJsonSerializer.serializeObjectStart(builder, record.getMillis());
         EcsJsonSerializer.serializeLogLevel(builder, record.getLevel().getName());
         EcsJsonSerializer.serializeFormattedMessage(builder, this.formatMessage(record));
-        EcsJsonSerializer.serializeServiceName(builder, serviceName);
+        //EcsJsonSerializer.serializeServiceName(builder, serviceName);
         serializeField(builder, "service.environment", this.environment);
         EcsJsonSerializer.serializeThreadName(builder, record.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, record.getLoggerName());

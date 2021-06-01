@@ -24,7 +24,6 @@ import java.util.logging.Logger;
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.AWSLogsClientBuilder;
 import com.amazonaws.services.logs.model.CreateLogStreamRequest;
-import com.amazonaws.services.logs.model.CreateLogStreamResult;
 import com.amazonaws.services.logs.model.DescribeLogStreamsRequest;
 import com.amazonaws.services.logs.model.LogStream;
 
@@ -58,7 +57,7 @@ public class LoggingCloudWatchHandlerValueFactory {
         String token = createLogStreamIfNeeded(awsLogs, config);
 
         LoggingCloudWatchHandler handler = new LoggingCloudWatchHandler(awsLogs, config.logGroup.get(),
-                config.logStreamName.get(), token, config);
+                config.logStreamName.get(), token);
         handler.setLevel(config.level);
         handler.setAppLabel(config.appLabel.orElse(""));
         return new RuntimeValue<>(Optional.of(handler));
@@ -81,8 +80,7 @@ public class LoggingCloudWatchHandlerValueFactory {
         }
 
         if (!found) {
-            CreateLogStreamResult logStream = awsLogs
-                    .createLogStream(new CreateLogStreamRequest(config.logGroup.get(), config.logStreamName.get()));
+            awsLogs.createLogStream(new CreateLogStreamRequest(config.logGroup.get(), config.logStreamName.get()));
         }
         return token;
     }
