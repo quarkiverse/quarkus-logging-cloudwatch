@@ -16,18 +16,9 @@
  */
 package io.quarkiverse.logging.cloudwatch;
 
-import static java.util.stream.Collectors.joining;
-
-import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-
-import org.jboss.logmanager.ExtLogRecord;
+import java.util.logging.*;
 
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.model.InputLogEvent;
@@ -47,10 +38,14 @@ public class LoggingCloudWatchHandler extends Handler {
 
     final List<InputLogEvent> eventBuffer;
 
-    public LoggingCloudWatchHandler(AWSLogs awsLogs, String logGroup, String logStreamName, String token) {
+    private LoggingCloudWatchConfig config;
+
+    public LoggingCloudWatchHandler(AWSLogs awsLogs, String logGroup, String logStreamName, String token,
+            LoggingCloudWatchConfig config) {
         this.logGroupName = logGroup;
         this.awsLogs = awsLogs;
         this.logStreamName = logStreamName;
+        this.config = config;
         sequenceToken = token;
         eventBuffer = new ArrayList<>();
         Publisher publisher = new Publisher();
@@ -67,46 +62,8 @@ public class LoggingCloudWatchHandler extends Handler {
             return;
         }
 
-        Map<String, String> tags = new HashMap<>();
-
-        String host = record instanceof ExtLogRecord ? ((ExtLogRecord) record).getHostName() : null;
-        if (record.getLoggerName().equals("__AccessLog")) {
-            tags.put("type", "access");
-        }
-        if (host != null && !host.isEmpty()) {
-            tags.put("host", host);
-        }
-        if (appLabel != null && !appLabel.isEmpty()) {
-            tags.put("app", appLabel);
-        }
-
-        tags.put("level", record.getLevel().getName());
-
-        String msg;
-        if (record.getParameters() != null && record.getParameters().length > 0) {
-            switch (((ExtLogRecord) record).getFormatStyle()) {
-                case PRINTF:
-                    msg = String.format(record.getMessage(), record.getParameters());
-                    break;
-                case MESSAGE_FORMAT:
-                    msg = MessageFormat.format(record.getMessage(), record.getParameters());
-                    break;
-                default: // == NO_FORMAT
-                    msg = record.getMessage();
-            }
-        } else {
-            msg = record.getMessage();
-        }
-
-        if (record instanceof ExtLogRecord) {
-
-            String tid = ((ExtLogRecord) record).getMdc("traceId");
-            if (tid != null) {
-                tags.put("traceId", tid);
-            }
-        }
-
-        String body = assemblePayload(msg, tags, record.getThrown());
+        ElasticCommonSchemaLogFormatter elasticCommonSchemaLogFormatter = new ElasticCommonSchemaLogFormatter(config);
+        String body = elasticCommonSchemaLogFormatter.format(record);
 
         InputLogEvent logEvent = new InputLogEvent()
                 .withMessage(body)
@@ -114,7 +71,6 @@ public class LoggingCloudWatchHandler extends Handler {
         // Queue this up, so that it can be flushed later in batch
         // Asynchronously
         eventBuffer.add(logEvent);
-
     }
 
     @Override
@@ -124,36 +80,6 @@ public class LoggingCloudWatchHandler extends Handler {
 
     @Override
     public void close() throws SecurityException {
-    }
-
-    private String assemblePayload(String message, Map<String, String> tags, Throwable thrown) {
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("msg=[").append(message).append("]");
-        if (thrown != null) {
-            sb.append(", stacktrace=[");
-            fillStackTrace(sb, thrown);
-            sb.append("]");
-        }
-        if (!tags.isEmpty()) {
-            sb.append(", tags=[");
-            String tagsAsString = tags.keySet().stream()
-                    .map(key -> key + "=" + tags.get(key))
-                    .collect(joining(", "));
-            sb.append(tagsAsString);
-            sb.append("]");
-        }
-        return sb.toString();
-    }
-
-    private void fillStackTrace(StringBuilder sb, Throwable thrown) {
-        for (StackTraceElement ste : thrown.getStackTrace()) {
-            sb.append("  ").append(ste.toString()).append("\n");
-        }
-        if (thrown.getCause() != null) {
-            sb.append("Caused by:");
-            fillStackTrace(sb, thrown.getCause());
-        }
     }
 
     public void setAppLabel(String label) {
@@ -186,11 +112,11 @@ public class LoggingCloudWatchHandler extends Handler {
                         sequenceToken = awsLogs.putLogEvents(request).getNextSequenceToken();
                     } catch (InvalidSequenceTokenException e) {
                         String exceptionMessage = e.getMessage();
-                        log.info("--- exception message: " + exceptionMessage + " ---");
+                        log.info("exception message: " + exceptionMessage);
                         String validSequenceToken = extractValidSequenceToken(exceptionMessage);
                         sequenceToken = validSequenceToken;
-                        log.info("--- valid sequence token: " + validSequenceToken + " ---");
-                        log.info("--- actual sequence token: " + sequenceToken + " ---");
+                        log.info("valid sequence token: " + validSequenceToken);
+                        log.info("actual sequence token: " + sequenceToken);
 
                         PutLogEventsRequest newRequest = new PutLogEventsRequest();
                         newRequest.setLogEvents(events);

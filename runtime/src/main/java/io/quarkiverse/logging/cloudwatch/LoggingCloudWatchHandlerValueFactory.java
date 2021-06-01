@@ -58,7 +58,7 @@ public class LoggingCloudWatchHandlerValueFactory {
         String token = createLogStreamIfNeeded(awsLogs, config);
 
         LoggingCloudWatchHandler handler = new LoggingCloudWatchHandler(awsLogs, config.logGroup.get(),
-                config.logStreamName.get(), token);
+                config.logStreamName.get(), token, config);
         handler.setLevel(config.level);
         handler.setAppLabel(config.appLabel.orElse(""));
         return new RuntimeValue<>(Optional.of(handler));
