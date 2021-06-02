@@ -20,7 +20,7 @@
     <dependency>
       <groupId>co.elastic.logging</groupId>
       <artifactId>ecs-logging-core</artifactId>
-      <version>0.3.0</version>
+      <version>1.0.1</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
