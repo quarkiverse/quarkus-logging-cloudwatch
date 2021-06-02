@@ -34,20 +34,20 @@ import io.quarkus.runtime.annotations.Recorder;
 @Recorder
 public class LoggingCloudWatchHandlerValueFactory {
 
-    Logger log = Logger.getLogger("LoggingCloudWatch");
+    private static final Logger LOGGER = Logger.getLogger("LoggingCloudWatch");
 
     public RuntimeValue<Optional<Handler>> create(final LoggingCloudWatchConfig config) {
 
         if (!config.enabled) {
-            log.fine("Quarkus Logging Cloudwatch Extension is not enabled");
+            LOGGER.fine("Quarkus Logging Cloudwatch Extension is not enabled");
             return new RuntimeValue<>(Optional.empty());
         }
 
         config.validate();
 
         // Init CloudWatch
-        log.info("Initializing Quarkus Logging Cloudwatch Extension");
-        log.info("Logging to log-group: " + config.logGroup + " and log-stream: " + config.logStreamName);
+        LOGGER.info("Initializing Quarkus Logging Cloudwatch Extension");
+        LOGGER.info("Logging to log-group: " + config.logGroup + " and log-stream: " + config.logStreamName);
 
         AWSLogsClientBuilder clientBuilder = AWSLogsClientBuilder.standard();
         clientBuilder.setCredentials(new CWCredentialsProvider(config));
@@ -60,6 +60,7 @@ public class LoggingCloudWatchHandlerValueFactory {
                 config.logStreamName.get(), token);
         handler.setLevel(config.level);
         handler.setAppLabel(config.appLabel.orElse(""));
+
         return new RuntimeValue<>(Optional.of(handler));
     }
 

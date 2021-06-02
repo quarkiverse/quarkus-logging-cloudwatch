@@ -16,7 +16,6 @@ public class ElasticCommonSchemaLogFormatter extends ExtFormatter {
     private final boolean includeOrigin = false;
     private final boolean stackTraceAsArray = false;
     private final String serviceName = "default";
-    //    private final String serializedAdditionalFields;
     private final String environment;
 
     public ElasticCommonSchemaLogFormatter() {

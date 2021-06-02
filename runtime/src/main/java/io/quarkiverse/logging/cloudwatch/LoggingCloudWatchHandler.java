@@ -27,7 +27,7 @@ import com.amazonaws.services.logs.model.PutLogEventsRequest;
 
 public class LoggingCloudWatchHandler extends Handler {
 
-    private final Logger log = Logger.getLogger("LoggingCloudWatch");
+    private static final Logger LOGGER = Logger.getLogger("LoggingCloudWatch");
 
     private String appLabel;
     private final AWSLogs awsLogs;
@@ -109,11 +109,11 @@ public class LoggingCloudWatchHandler extends Handler {
                         sequenceToken = awsLogs.putLogEvents(request).getNextSequenceToken();
                     } catch (InvalidSequenceTokenException e) {
                         String exceptionMessage = e.getMessage();
-                        log.info("exception message: " + exceptionMessage);
+                        LOGGER.info("exception message: " + exceptionMessage);
                         String validSequenceToken = extractValidSequenceToken(exceptionMessage);
                         sequenceToken = validSequenceToken;
-                        log.info("valid sequence token: " + validSequenceToken);
-                        log.info("actual sequence token: " + sequenceToken);
+                        LOGGER.info("valid sequence token: " + validSequenceToken);
+                        LOGGER.info("actual sequence token: " + sequenceToken);
 
                         PutLogEventsRequest newRequest = new PutLogEventsRequest();
                         newRequest.setLogEvents(events);
