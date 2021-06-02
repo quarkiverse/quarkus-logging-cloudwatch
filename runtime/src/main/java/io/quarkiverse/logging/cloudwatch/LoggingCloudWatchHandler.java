@@ -54,8 +54,7 @@ public class LoggingCloudWatchHandler extends Handler {
 
     @Override
     public void publish(LogRecord record) {
-        // Skip messages that are below the configured threshold
-        if (record.getLevel().intValue() < getLevel().intValue()) {
+        if (isBelowThreshold(record)) {
             return;
         }
 
@@ -68,6 +67,13 @@ public class LoggingCloudWatchHandler extends Handler {
         // Queue this up, so that it can be flushed later in batch
         // Asynchronously
         eventBuffer.add(logEvent);
+    }
+
+    /**
+     * Skip messages that are below the configured threshold.
+     */
+    private boolean isBelowThreshold(LogRecord record) {
+        return record.getLevel().intValue() < getLevel().intValue();
     }
 
     @Override
