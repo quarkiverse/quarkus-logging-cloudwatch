@@ -68,14 +68,6 @@ public class LoggingCloudWatchConfig {
     public Optional<String> logStreamName;
 
     /**
-     * App label
-     *
-     * If present, a label of app=\<appLabel> is supplied
-     */
-    @ConfigItem
-    public Optional<String> appLabel;
-
-    /**
      * The CW log level.
      */
     @ConfigItem(defaultValue = "WARN")

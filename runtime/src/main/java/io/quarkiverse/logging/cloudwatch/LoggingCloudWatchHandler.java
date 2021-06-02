@@ -29,7 +29,6 @@ public class LoggingCloudWatchHandler extends Handler {
 
     private static final Logger LOGGER = Logger.getLogger("LoggingCloudWatch");
 
-    private String appLabel;
     private final AWSLogs awsLogs;
     private final String logStreamName;
     private final String logGroupName;
@@ -58,14 +57,14 @@ public class LoggingCloudWatchHandler extends Handler {
             return;
         }
 
-        ElasticCommonSchemaLogFormatter elasticCommonSchemaLogFormatter = new ElasticCommonSchemaLogFormatter();
-        String body = elasticCommonSchemaLogFormatter.format(record);
+        ElasticCommonSchemaLogFormatter formatter = new ElasticCommonSchemaLogFormatter();
+        String body = formatter.format(record);
 
         InputLogEvent logEvent = new InputLogEvent()
                 .withMessage(body)
                 .withTimestamp(System.currentTimeMillis());
-        // Queue this up, so that it can be flushed later in batch
-        // Asynchronously
+
+        // Queue this up, so that it can be flushed later in batch asynchronously
         eventBuffer.add(logEvent);
     }
 
@@ -83,12 +82,6 @@ public class LoggingCloudWatchHandler extends Handler {
 
     @Override
     public void close() throws SecurityException {
-    }
-
-    public void setAppLabel(String label) {
-        if (label != null) {
-            this.appLabel = label;
-        }
     }
 
     private class Publisher implements Runnable {

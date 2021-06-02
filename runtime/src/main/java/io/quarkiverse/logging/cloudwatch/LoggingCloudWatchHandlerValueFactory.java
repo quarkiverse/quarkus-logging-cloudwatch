@@ -37,7 +37,6 @@ public class LoggingCloudWatchHandlerValueFactory {
     private static final Logger LOGGER = Logger.getLogger("LoggingCloudWatch");
 
     public RuntimeValue<Optional<Handler>> create(final LoggingCloudWatchConfig config) {
-
         if (!config.enabled) {
             LOGGER.fine("Quarkus Logging Cloudwatch Extension is not enabled");
             return new RuntimeValue<>(Optional.empty());
@@ -45,7 +44,6 @@ public class LoggingCloudWatchHandlerValueFactory {
 
         config.validate();
 
-        // Init CloudWatch
         LOGGER.info("Initializing Quarkus Logging Cloudwatch Extension");
         LOGGER.info("Logging to log-group: " + config.logGroup + " and log-stream: " + config.logStreamName);
 
@@ -59,7 +57,6 @@ public class LoggingCloudWatchHandlerValueFactory {
         LoggingCloudWatchHandler handler = new LoggingCloudWatchHandler(awsLogs, config.logGroup.get(),
                 config.logStreamName.get(), token);
         handler.setLevel(config.level);
-        handler.setAppLabel(config.appLabel.orElse(""));
 
         return new RuntimeValue<>(Optional.of(handler));
     }
