@@ -60,6 +60,10 @@ public class LoggingCloudWatchHandler extends Handler {
             return;
         }
 
+        if (record.getMessage().equals("test warning")) {
+            System.out.println("test warning cloudwatch");
+        }
+
         ElasticCommonSchemaLogFormatter formatter = new ElasticCommonSchemaLogFormatter();
         String body = formatter.format(record);
 
