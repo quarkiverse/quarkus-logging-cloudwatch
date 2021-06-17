@@ -105,11 +105,12 @@ public class LoggingCloudWatchHandler extends Handler {
             }
             boolean workingSequenceToken = false;
             if (events.size() > 0) {
+                PutLogEventsRequest request = new PutLogEventsRequest();
+                request.setLogEvents(events);
+                request.setLogGroupName(logGroupName);
+                request.setLogStreamName(logStreamName);
+
                 while (!workingSequenceToken) {
-                    PutLogEventsRequest request = new PutLogEventsRequest();
-                    request.setLogEvents(events);
-                    request.setLogGroupName(logGroupName);
-                    request.setLogStreamName(logStreamName);
                     request.setSequenceToken(sequenceToken);
 
                     try {
