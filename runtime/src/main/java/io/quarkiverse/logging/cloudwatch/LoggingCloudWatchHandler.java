@@ -53,7 +53,7 @@ public class LoggingCloudWatchHandler extends Handler {
         this.sequenceToken = token;
         this.eventBuffer = new ArrayList<>();
 
-        scheduler.scheduleAtFixedRate(new Publisher(), 0,5, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(new Publisher(), 0, 5, TimeUnit.SECONDS);
     }
 
     @Override
