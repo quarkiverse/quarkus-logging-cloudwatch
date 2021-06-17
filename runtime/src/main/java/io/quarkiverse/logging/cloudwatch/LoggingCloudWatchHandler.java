@@ -29,14 +29,17 @@ public class LoggingCloudWatchHandler extends Handler {
 
     private static final Logger LOGGER = Logger.getLogger("LoggingCloudWatch");
 
-    private final AWSLogs awsLogs;
-    private final String logStreamName;
-    private final String logGroupName;
+    private AWSLogs awsLogs;
+    private String logStreamName;
+    private String logGroupName;
     private String sequenceToken;
 
     private volatile boolean done = false;
 
-    private final List<InputLogEvent> eventBuffer;
+    private List<InputLogEvent> eventBuffer;
+
+    public LoggingCloudWatchHandler() {
+    }
 
     public LoggingCloudWatchHandler(AWSLogs awsLogs, String logGroup, String logStreamName, String token) {
         this.logGroupName = logGroup;
@@ -135,9 +138,9 @@ public class LoggingCloudWatchHandler extends Handler {
                 }
             }
         }
+    }
 
-        private String extractValidSequenceToken(String exceptionMessage) {
-            return exceptionMessage.substring(exceptionMessage.indexOf(":") + 1, exceptionMessage.indexOf("("));
-        }
+    String extractValidSequenceToken(String exceptionMessage) {
+        return exceptionMessage.substring(exceptionMessage.indexOf(":") + 1, exceptionMessage.indexOf("(")).trim();
     }
 }
