@@ -18,6 +18,7 @@ package io.quarkiverse.logging.cloudwatch;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -37,11 +38,9 @@ public class LoggingCloudWatchHandler extends Handler {
     private String logGroupName;
     private String sequenceToken;
 
-    private volatile boolean done = false;
-
     private List<InputLogEvent> eventBuffer;
 
-    private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public LoggingCloudWatchHandler() {
     }
@@ -86,11 +85,12 @@ public class LoggingCloudWatchHandler extends Handler {
 
     @Override
     public void flush() {
-        done = true;
     }
 
     @Override
     public void close() throws SecurityException {
+        LOGGER.info("Shutting down and awaiting termination");
+        shutdownAndAwaitTermination(scheduler);
     }
 
     private class Publisher implements Runnable {
@@ -125,14 +125,28 @@ public class LoggingCloudWatchHandler extends Handler {
                     }
                 }
             }
-            if (done) {
-                scheduler.shutdown();
-                return;
-            }
         }
     }
 
     String extractValidSequenceToken(String exceptionMessage) {
         return exceptionMessage.substring(exceptionMessage.indexOf(":") + 1, exceptionMessage.indexOf("(")).trim();
+    }
+
+    private void shutdownAndAwaitTermination(ExecutorService pool) {
+        pool.shutdown(); // Disable new tasks from being submitted
+        try {
+            // Wait a while for existing tasks to terminate
+            if (!pool.awaitTermination(60, TimeUnit.SECONDS)) {
+                pool.shutdownNow(); // Cancel currently executing tasks
+                // Wait a while for tasks to respond to being cancelled
+                if (!pool.awaitTermination(60, TimeUnit.SECONDS))
+                    System.err.println("Pool did not terminate");
+            }
+        } catch (InterruptedException ie) {
+            // (Re-)Cancel if current thread also interrupted
+            pool.shutdownNow();
+            // Preserve interrupt status
+            Thread.currentThread().interrupt();
+        }
     }
 }
