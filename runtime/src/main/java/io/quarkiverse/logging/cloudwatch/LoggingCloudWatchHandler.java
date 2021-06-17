@@ -102,32 +102,26 @@ public class LoggingCloudWatchHandler extends Handler {
                     events = new ArrayList<>(eventBuffer);
                     eventBuffer.clear();
                 }
-
+                boolean workingSequenceToken = false;
                 if (events.size() > 0) {
-                    PutLogEventsRequest request = new PutLogEventsRequest();
-                    request.setLogEvents(events);
-                    request.setLogGroupName(logGroupName);
-                    request.setLogStreamName(logStreamName);
-                    request.setSequenceToken(sequenceToken);
-                    // Do the call and get the next token
+                    while (!workingSequenceToken) {
+                        PutLogEventsRequest request = new PutLogEventsRequest();
+                        request.setLogEvents(events);
+                        request.setLogGroupName(logGroupName);
+                        request.setLogStreamName(logStreamName);
+                        request.setSequenceToken(sequenceToken);
+                        // Do the call and get the next token
 
-                    try {
-                        sequenceToken = awsLogs.putLogEvents(request).getNextSequenceToken();
-                    } catch (InvalidSequenceTokenException e) {
-                        String exceptionMessage = e.getMessage();
-                        LOGGER.info("exception message: " + exceptionMessage);
-                        String validSequenceToken = extractValidSequenceToken(exceptionMessage);
-                        sequenceToken = validSequenceToken;
-                        LOGGER.info("valid sequence token: " + validSequenceToken);
-                        LOGGER.info("actual sequence token: " + sequenceToken);
-
-                        PutLogEventsRequest newRequest = new PutLogEventsRequest();
-                        newRequest.setLogEvents(events);
-                        newRequest.setLogGroupName(logGroupName);
-                        newRequest.setLogStreamName(logStreamName);
-                        newRequest.setSequenceToken(validSequenceToken);
-
-                        sequenceToken = awsLogs.putLogEvents(newRequest).getNextSequenceToken();
+                        try {
+                            sequenceToken = awsLogs.putLogEvents(request).getNextSequenceToken();
+                            workingSequenceToken = true;
+                        } catch (InvalidSequenceTokenException e) {
+                            String exceptionMessage = e.getMessage();
+                            LOGGER.info("exception message: " + exceptionMessage);
+                            sequenceToken = extractValidSequenceToken(exceptionMessage);
+                            LOGGER.info("extracted sequence token: " + sequenceToken);
+                            workingSequenceToken = false;
+                        }
                     }
                 }
 
