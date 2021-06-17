@@ -18,6 +18,9 @@ package io.quarkiverse.logging.cloudwatch;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.*;
 
 import com.amazonaws.services.logs.AWSLogs;
@@ -38,6 +41,8 @@ public class LoggingCloudWatchHandler extends Handler {
 
     private List<InputLogEvent> eventBuffer;
 
+    private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
     public LoggingCloudWatchHandler() {
     }
 
@@ -48,10 +53,7 @@ public class LoggingCloudWatchHandler extends Handler {
         this.sequenceToken = token;
         this.eventBuffer = new ArrayList<>();
 
-        Publisher publisher = new Publisher();
-        Thread t = new Thread(publisher);
-        t.setDaemon(true);
-        t.start();
+        scheduler.scheduleAtFixedRate(new Publisher(), 0,5, TimeUnit.SECONDS);
     }
 
     @Override
@@ -97,43 +99,34 @@ public class LoggingCloudWatchHandler extends Handler {
 
         @Override
         public void run() {
-            while (true) {
-                synchronized (eventBuffer) {
-                    events = new ArrayList<>(eventBuffer);
-                    eventBuffer.clear();
-                }
-                boolean workingSequenceToken = false;
-                if (events.size() > 0) {
-                    while (!workingSequenceToken) {
-                        PutLogEventsRequest request = new PutLogEventsRequest();
-                        request.setLogEvents(events);
-                        request.setLogGroupName(logGroupName);
-                        request.setLogStreamName(logStreamName);
-                        request.setSequenceToken(sequenceToken);
-                        // Do the call and get the next token
+            synchronized (eventBuffer) {
+                events = new ArrayList<>(eventBuffer);
+                eventBuffer.clear();
+            }
+            boolean workingSequenceToken = false;
+            if (events.size() > 0) {
+                while (!workingSequenceToken) {
+                    PutLogEventsRequest request = new PutLogEventsRequest();
+                    request.setLogEvents(events);
+                    request.setLogGroupName(logGroupName);
+                    request.setLogStreamName(logStreamName);
+                    request.setSequenceToken(sequenceToken);
 
-                        try {
-                            sequenceToken = awsLogs.putLogEvents(request).getNextSequenceToken();
-                            workingSequenceToken = true;
-                        } catch (InvalidSequenceTokenException e) {
-                            String exceptionMessage = e.getMessage();
-                            LOGGER.info("exception message: " + exceptionMessage);
-                            sequenceToken = extractValidSequenceToken(exceptionMessage);
-                            LOGGER.info("extracted sequence token: " + sequenceToken);
-                            workingSequenceToken = false;
-                        }
+                    try {
+                        sequenceToken = awsLogs.putLogEvents(request).getNextSequenceToken();
+                        workingSequenceToken = true;
+                    } catch (InvalidSequenceTokenException e) {
+                        String exceptionMessage = e.getMessage();
+                        LOGGER.info("exception message: " + exceptionMessage);
+                        sequenceToken = extractValidSequenceToken(exceptionMessage);
+                        LOGGER.info("extracted sequence token: " + sequenceToken);
+                        workingSequenceToken = false;
                     }
                 }
-
-                if (done) {
-                    return;
-                }
-
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            }
+            if (done) {
+                scheduler.shutdown();
+                return;
             }
         }
     }

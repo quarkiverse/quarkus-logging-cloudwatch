@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 class LoggingCloudWatchHandlerTest {
 
-    private LoggingCloudWatchHandler handler;
+    private final LoggingCloudWatchHandler handler;
 
     LoggingCloudWatchHandlerTest() {
         this.handler = new LoggingCloudWatchHandler();
