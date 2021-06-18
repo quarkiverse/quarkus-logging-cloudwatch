@@ -1,9 +1,10 @@
 package io.quarkiverse.logging.cloudwatch;
 
-import java.util.Optional;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.Optional;
+
+import org.junit.jupiter.api.Test;
 
 class LoggingCloudWatchConfigTest {
 
@@ -25,8 +26,7 @@ class LoggingCloudWatchConfigTest {
         testee.accessKeyId = Optional.ofNullable(null);
         IllegalStateException thrown = assertThrows(
                 IllegalStateException.class,
-                () -> testee.validate()
-        );
+                () -> testee.validate());
 
         assertEquals("Access key id not provided", thrown.getMessage());
     }
@@ -37,8 +37,7 @@ class LoggingCloudWatchConfigTest {
         testee.accessKeySecret = Optional.ofNullable(null);
         IllegalStateException thrown = assertThrows(
                 IllegalStateException.class,
-                () -> testee.validate()
-        );
+                () -> testee.validate());
 
         assertEquals("Access key secret not provided", thrown.getMessage());
     }
@@ -50,8 +49,7 @@ class LoggingCloudWatchConfigTest {
         testee.region = Optional.ofNullable(null);
         IllegalStateException thrown = assertThrows(
                 IllegalStateException.class,
-                () -> testee.validate()
-        );
+                () -> testee.validate());
 
         assertEquals("Region not provided", thrown.getMessage());
     }
@@ -64,8 +62,7 @@ class LoggingCloudWatchConfigTest {
         testee.logGroup = Optional.ofNullable(null);
         IllegalStateException thrown = assertThrows(
                 IllegalStateException.class,
-                () -> testee.validate()
-        );
+                () -> testee.validate());
 
         assertEquals("Log group not provided", thrown.getMessage());
     }
@@ -79,8 +76,7 @@ class LoggingCloudWatchConfigTest {
         testee.logStreamName = Optional.ofNullable(null);
         IllegalStateException thrown = assertThrows(
                 IllegalStateException.class,
-                () -> testee.validate()
-        );
+                () -> testee.validate());
 
         assertEquals("Log stream not provided", thrown.getMessage());
     }
