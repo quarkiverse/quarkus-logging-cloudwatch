@@ -1,14 +1,13 @@
 package io.quarkiverse.logging.cloudwatch;
 
 import java.util.Optional;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class LoggingCloudWatchConfigTest {
 
-    private LoggingCloudWatchConfig testee = new LoggingCloudWatchConfig();
+    private final LoggingCloudWatchConfig testee = new LoggingCloudWatchConfig();
 
     @Test
     void shouldNotThrowIllegalStateExceptionWhenEveryAttributeIsPresent() {
