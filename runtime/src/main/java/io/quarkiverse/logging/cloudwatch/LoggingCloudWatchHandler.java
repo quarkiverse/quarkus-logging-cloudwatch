@@ -120,6 +120,7 @@ public class LoggingCloudWatchHandler extends Handler {
                     try {
                         sequenceToken = awsLogs.putLogEvents(request).getNextSequenceToken();
                         workingSequenceToken = true;
+                        counter = 10;
                     } catch (InvalidSequenceTokenException e) {
                         String exceptionMessage = e.getMessage();
                         LOGGER.info("exception message: " + exceptionMessage);
