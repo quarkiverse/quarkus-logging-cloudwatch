@@ -137,7 +137,7 @@ public class LoggingCloudWatchHandler extends Handler {
 
         private int checkAndIncreaseCounter(int counter) {
             if (counter == 9) {
-                LOGGER.severe("10th counter iteration now. Too many attempts. Will abort trying now. ");
+                LOGGER.severe("Last counter iteration now. Too many attempts. Will abort trying now. ");
             }
             counter++;
             return counter;
