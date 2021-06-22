@@ -94,6 +94,9 @@ public class LoggingCloudWatchHandler extends Handler {
     public void close() throws SecurityException {
         LOGGER.info("Shutting down and awaiting termination");
         shutdownAndAwaitTermination(scheduler);
+
+        LOGGER.info("Trying to send of last log messages after shutdown.");
+        publisher.run();
     }
 
     private class Publisher implements Runnable {
