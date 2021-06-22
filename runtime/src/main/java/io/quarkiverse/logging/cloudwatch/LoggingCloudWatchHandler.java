@@ -42,7 +42,9 @@ public class LoggingCloudWatchHandler extends Handler {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    public LoggingCloudWatchHandler() {
+    private Publisher publisher;
+
+    LoggingCloudWatchHandler() {
     }
 
     public LoggingCloudWatchHandler(AWSLogs awsLogs, String logGroup, String logStreamName, String token) {
@@ -52,7 +54,8 @@ public class LoggingCloudWatchHandler extends Handler {
         this.sequenceToken = token;
         this.eventBuffer = new ArrayList<>();
 
-        scheduler.scheduleAtFixedRate(new Publisher(), 0, 5, TimeUnit.SECONDS);
+        this.publisher = new Publisher();
+        scheduler.scheduleAtFixedRate(publisher, 0, 5, TimeUnit.SECONDS);
     }
 
     @Override
@@ -110,7 +113,8 @@ public class LoggingCloudWatchHandler extends Handler {
                 request.setLogGroupName(logGroupName);
                 request.setLogStreamName(logStreamName);
 
-                while (!workingSequenceToken) {
+                int counter = 0;
+                while (!workingSequenceToken && counter < 10) {
                     request.setSequenceToken(sequenceToken);
 
                     try {
@@ -119,12 +123,23 @@ public class LoggingCloudWatchHandler extends Handler {
                     } catch (InvalidSequenceTokenException e) {
                         String exceptionMessage = e.getMessage();
                         LOGGER.info("exception message: " + exceptionMessage);
+
                         sequenceToken = extractValidSequenceToken(exceptionMessage);
                         LOGGER.info("extracted sequence token: " + sequenceToken);
+
                         workingSequenceToken = false;
                     }
+                    counter = checkAndIncreaseCounter(counter);
                 }
             }
+        }
+
+        private int checkAndIncreaseCounter(int counter) {
+            if (counter == 9) {
+                LOGGER.severe("10th counter iteration now. Too many attempts. Will abort trying now. ");
+            }
+            counter++;
+            return counter;
         }
     }
 
@@ -139,8 +154,9 @@ public class LoggingCloudWatchHandler extends Handler {
             if (!pool.awaitTermination(60, TimeUnit.SECONDS)) {
                 pool.shutdownNow(); // Cancel currently executing tasks
                 // Wait a while for tasks to respond to being cancelled
-                if (!pool.awaitTermination(60, TimeUnit.SECONDS))
+                if (!pool.awaitTermination(60, TimeUnit.SECONDS)) {
                     System.err.println("Pool did not terminate");
+                }
             }
         } catch (InterruptedException ie) {
             // (Re-)Cancel if current thread also interrupted
