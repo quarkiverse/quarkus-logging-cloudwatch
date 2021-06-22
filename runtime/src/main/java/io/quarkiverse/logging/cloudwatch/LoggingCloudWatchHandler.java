@@ -78,7 +78,7 @@ public class LoggingCloudWatchHandler extends Handler {
     /**
      * Skip messages that are below the configured threshold.
      */
-    private boolean isBelowThreshold(LogRecord record) {
+    boolean isBelowThreshold(LogRecord record) {
         return record.getLevel().intValue() < getLevel().intValue();
     }
 
