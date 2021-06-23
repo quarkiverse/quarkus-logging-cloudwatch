@@ -18,6 +18,10 @@ package io.quarkiverse.logging.cloudwatch;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.*;
 
 import com.amazonaws.services.logs.AWSLogs;
@@ -34,11 +38,13 @@ public class LoggingCloudWatchHandler extends Handler {
     private String logGroupName;
     private String sequenceToken;
 
-    private volatile boolean done = false;
-
     private List<InputLogEvent> eventBuffer;
 
-    public LoggingCloudWatchHandler() {
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+    private Publisher publisher;
+
+    LoggingCloudWatchHandler() {
     }
 
     public LoggingCloudWatchHandler(AWSLogs awsLogs, String logGroup, String logStreamName, String token) {
@@ -48,10 +54,8 @@ public class LoggingCloudWatchHandler extends Handler {
         this.sequenceToken = token;
         this.eventBuffer = new ArrayList<>();
 
-        Publisher publisher = new Publisher();
-        Thread t = new Thread(publisher);
-        t.setDaemon(true);
-        t.start();
+        this.publisher = new Publisher();
+        scheduler.scheduleAtFixedRate(publisher, 0, 5, TimeUnit.SECONDS);
     }
 
     @Override
@@ -84,11 +88,15 @@ public class LoggingCloudWatchHandler extends Handler {
 
     @Override
     public void flush() {
-        done = true;
     }
 
     @Override
     public void close() throws SecurityException {
+        LOGGER.info("Shutting down and awaiting termination");
+        shutdownAndAwaitTermination(scheduler);
+
+        LOGGER.info("Trying to send of last log messages after shutdown.");
+        publisher.run();
     }
 
     private class Publisher implements Runnable {
@@ -97,54 +105,68 @@ public class LoggingCloudWatchHandler extends Handler {
 
         @Override
         public void run() {
-            while (true) {
-                synchronized (eventBuffer) {
-                    events = new ArrayList<>(eventBuffer);
-                    eventBuffer.clear();
-                }
+            synchronized (eventBuffer) {
+                events = new ArrayList<>(eventBuffer);
+                eventBuffer.clear();
+            }
+            boolean workingSequenceToken = false;
+            if (events.size() > 0) {
+                PutLogEventsRequest request = new PutLogEventsRequest();
+                request.setLogEvents(events);
+                request.setLogGroupName(logGroupName);
+                request.setLogStreamName(logStreamName);
 
-                if (events.size() > 0) {
-                    PutLogEventsRequest request = new PutLogEventsRequest();
-                    request.setLogEvents(events);
-                    request.setLogGroupName(logGroupName);
-                    request.setLogStreamName(logStreamName);
+                int counter = 0;
+                while (!workingSequenceToken && counter < 10) {
                     request.setSequenceToken(sequenceToken);
-                    // Do the call and get the next token
 
                     try {
                         sequenceToken = awsLogs.putLogEvents(request).getNextSequenceToken();
+                        workingSequenceToken = true;
+                        counter = 10;
                     } catch (InvalidSequenceTokenException e) {
                         String exceptionMessage = e.getMessage();
                         LOGGER.info("exception message: " + exceptionMessage);
-                        String validSequenceToken = extractValidSequenceToken(exceptionMessage);
-                        sequenceToken = validSequenceToken;
-                        LOGGER.info("valid sequence token: " + validSequenceToken);
-                        LOGGER.info("actual sequence token: " + sequenceToken);
 
-                        PutLogEventsRequest newRequest = new PutLogEventsRequest();
-                        newRequest.setLogEvents(events);
-                        newRequest.setLogGroupName(logGroupName);
-                        newRequest.setLogStreamName(logStreamName);
-                        newRequest.setSequenceToken(validSequenceToken);
+                        sequenceToken = extractValidSequenceToken(exceptionMessage);
+                        LOGGER.info("extracted sequence token: " + sequenceToken);
 
-                        sequenceToken = awsLogs.putLogEvents(newRequest).getNextSequenceToken();
+                        workingSequenceToken = false;
                     }
-                }
-
-                if (done) {
-                    return;
-                }
-
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    counter = checkAndIncreaseCounter(counter);
                 }
             }
+        }
+
+        private int checkAndIncreaseCounter(int counter) {
+            if (counter == 9) {
+                LOGGER.severe("Last counter iteration now. Too many attempts. Will abort trying now. ");
+            }
+            counter++;
+            return counter;
         }
     }
 
     String extractValidSequenceToken(String exceptionMessage) {
         return exceptionMessage.substring(exceptionMessage.indexOf(":") + 1, exceptionMessage.indexOf("(")).trim();
+    }
+
+    private void shutdownAndAwaitTermination(ExecutorService pool) {
+        pool.shutdown(); // Disable new tasks from being submitted
+        try {
+            // Wait a while for existing tasks to terminate
+            if (!pool.awaitTermination(60, TimeUnit.SECONDS)) {
+                pool.shutdownNow(); // Cancel currently executing tasks
+                // Wait a while for tasks to respond to being cancelled
+                if (!pool.awaitTermination(60, TimeUnit.SECONDS)) {
+                    System.err.println("Pool did not terminate");
+                }
+            }
+        } catch (InterruptedException ie) {
+            // (Re-)Cancel if current thread also interrupted
+            pool.shutdownNow();
+            // Preserve interrupt status
+            Thread.currentThread().interrupt();
+        }
     }
 }
