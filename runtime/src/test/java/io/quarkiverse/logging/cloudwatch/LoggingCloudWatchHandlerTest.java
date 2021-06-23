@@ -3,6 +3,7 @@ package io.quarkiverse.logging.cloudwatch;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.logging.LogRecord;
+
 import org.jboss.logmanager.Level;
 import org.junit.jupiter.api.Test;
 
