@@ -11,7 +11,7 @@ final class AwsSubstitutions {
 
     @Alias
     @InjectAccessors(RandomAccessors.class)
-    private Random random;
+    private static Random random;
 
     public static final class RandomAccessors {
 
