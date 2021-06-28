@@ -71,5 +71,15 @@
         <module>integration-tests</module>
       </modules>
     </profile>
+
+
+      <profile>
+        <id>native</id>
+        <properties>
+          <quarkus.package.type>native</quarkus.package.type>
+        </properties>
+      </profile>
+
+
   </profiles>
 </project>

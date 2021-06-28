@@ -17,7 +17,7 @@ final class AwsSubstitutions {
 
         private static volatile Random volatileRandom;
 
-        public static Random get() {
+        public static Random get(Object object) {
             Random localVolatileRandom = volatileRandom;
             if (localVolatileRandom == null) {
                 synchronized (RandomAccessors.class) {
