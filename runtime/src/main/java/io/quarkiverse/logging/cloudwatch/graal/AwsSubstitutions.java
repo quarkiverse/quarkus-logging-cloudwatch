@@ -17,7 +17,7 @@ final class AwsSubstitutions {
 
         private static volatile Random volatileRandom;
 
-        public static Random get() {
+        public static Random get(Object object) {
             Random localVolatileRandom = volatileRandom;
             if (localVolatileRandom == null) {
                 synchronized (RandomAccessors.class) {
@@ -30,7 +30,7 @@ final class AwsSubstitutions {
             return localVolatileRandom;
         }
 
-        public static void set(Random random) {
+        public static void set(Object object) {
             throw new IllegalStateException(
                     "The setter for com.amazonaws.retry.PredefinedBackoffStrategies$EqualJitterBackoffStrategy#random shouldn't be called.");
         }
