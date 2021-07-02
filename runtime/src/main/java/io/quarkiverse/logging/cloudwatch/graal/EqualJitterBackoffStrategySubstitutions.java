@@ -7,7 +7,7 @@ import com.oracle.svm.core.annotate.InjectAccessors;
 import com.oracle.svm.core.annotate.TargetClass;
 
 @TargetClass(className = "com.amazonaws.retry.PredefinedBackoffStrategies$EqualJitterBackoffStrategy")
-final class AwsSubstitutions {
+final class EqualJitterBackoffStrategySubstitutions {
 
     @Alias
     @InjectAccessors(RandomAccessors.class)
