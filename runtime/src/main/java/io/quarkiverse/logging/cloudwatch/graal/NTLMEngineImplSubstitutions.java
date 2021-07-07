@@ -30,7 +30,7 @@ final class NTLMEngineImplSubstitutions {
             return localVolatileRandom;
         }
 
-        public static void set(Object object) {
+        public static void set(SecureRandom secureRandom) {
             throw new IllegalStateException(
                     "The setter for org.apache.http.impl.auth.NTLMEngineImpl#random shouldn't be called.");
         }
