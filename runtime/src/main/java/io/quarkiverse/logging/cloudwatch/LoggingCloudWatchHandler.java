@@ -29,6 +29,8 @@ import com.amazonaws.services.logs.model.InputLogEvent;
 import com.amazonaws.services.logs.model.InvalidSequenceTokenException;
 import com.amazonaws.services.logs.model.PutLogEventsRequest;
 
+import io.quarkiverse.logging.cloudwatch.format.ElasticCommonSchemaLogFormatter;
+
 public class LoggingCloudWatchHandler extends Handler {
 
     private static final Logger LOGGER = Logger.getLogger("LoggingCloudWatch");
