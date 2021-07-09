@@ -8,6 +8,6 @@ updates:
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     ignore:
       - dependency-name: "org.apache.maven.plugins:maven-compiler-plugin"
