@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Red Hat, Inc. and/or its affiliates
+ * Copyright 2021 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +31,7 @@ import com.amazonaws.services.logs.model.PutLogEventsRequest;
 
 import io.quarkiverse.logging.cloudwatch.format.ElasticCommonSchemaLogFormatter;
 
-public class LoggingCloudWatchHandler extends Handler {
+class LoggingCloudWatchHandler extends Handler {
 
     private static final Logger LOGGER = Logger.getLogger("LoggingCloudWatch");
 
@@ -49,7 +49,7 @@ public class LoggingCloudWatchHandler extends Handler {
     LoggingCloudWatchHandler() {
     }
 
-    public LoggingCloudWatchHandler(AWSLogs awsLogs, String logGroup, String logStreamName, String token) {
+    LoggingCloudWatchHandler(AWSLogs awsLogs, String logGroup, String logStreamName, String token) {
         this.logGroupName = logGroup;
         this.awsLogs = awsLogs;
         this.logStreamName = logStreamName;
@@ -64,10 +64,6 @@ public class LoggingCloudWatchHandler extends Handler {
     public void publish(LogRecord record) {
         if (isBelowThreshold(record)) {
             return;
-        }
-
-        if (record.getMessage().equals("test warning")) {
-            System.out.println("test warning cloudwatch");
         }
 
         ElasticCommonSchemaLogFormatter formatter = new ElasticCommonSchemaLogFormatter();

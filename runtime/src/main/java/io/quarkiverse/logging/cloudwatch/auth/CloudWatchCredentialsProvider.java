@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Red Hat, Inc. and/or its affiliates
+ * Copyright 2021 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,24 +17,24 @@
 package io.quarkiverse.logging.cloudwatch.auth;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
 
 import io.quarkiverse.logging.cloudwatch.LoggingCloudWatchConfig;
 
-public class CWCredentials implements AWSCredentials {
+public class CloudWatchCredentialsProvider implements AWSCredentialsProvider {
 
     private final LoggingCloudWatchConfig config;
 
-    public CWCredentials(LoggingCloudWatchConfig config) {
+    public CloudWatchCredentialsProvider(LoggingCloudWatchConfig config) {
         this.config = config;
     }
 
     @Override
-    public String getAWSAccessKeyId() {
-        return config.accessKeyId.get();
+    public AWSCredentials getCredentials() {
+        return new CloudWatchCredentials(config);
     }
 
     @Override
-    public String getAWSSecretKey() {
-        return config.accessKeySecret.get();
+    public void refresh() {
     }
 }

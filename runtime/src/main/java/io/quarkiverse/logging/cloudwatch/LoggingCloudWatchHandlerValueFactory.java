@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Red Hat, Inc. and/or its affiliates
+ * Copyright 2021 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@ import com.amazonaws.services.logs.model.CreateLogStreamRequest;
 import com.amazonaws.services.logs.model.DescribeLogStreamsRequest;
 import com.amazonaws.services.logs.model.LogStream;
 
-import io.quarkiverse.logging.cloudwatch.auth.CWCredentialsProvider;
+import io.quarkiverse.logging.cloudwatch.auth.CloudWatchCredentialsProvider;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
 
@@ -48,7 +48,7 @@ public class LoggingCloudWatchHandlerValueFactory {
         LOGGER.info("Logging to log-group: " + config.logGroup.get() + " and log-stream: " + config.logStreamName.get());
 
         AWSLogsClientBuilder clientBuilder = AWSLogsClientBuilder.standard();
-        clientBuilder.setCredentials(new CWCredentialsProvider(config));
+        clientBuilder.setCredentials(new CloudWatchCredentialsProvider(config));
         clientBuilder.setRegion(config.region.get());
 
         AWSLogs awsLogs = clientBuilder.build();
