@@ -34,12 +34,6 @@
       <artifactId>rest-assured</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk-s3</artifactId>
-      <version>1.12.19</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
   <build>
     <plugins>
