@@ -24,7 +24,7 @@
     <dependency>
       <groupId>co.elastic.logging</groupId>
       <artifactId>ecs-logging-core</artifactId>
-      <version>1.0.1</version>
+      <version>1.1.0</version>
     </dependency>
     <dependency>
       <groupId>org.graalvm.nativeimage</groupId>
