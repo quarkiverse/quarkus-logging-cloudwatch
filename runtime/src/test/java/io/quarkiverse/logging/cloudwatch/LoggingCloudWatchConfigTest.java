@@ -23,10 +23,10 @@ class LoggingCloudWatchConfigTest {
 
     @Test
     void shouldThrowIllegalStateExceptionWhenAccessKeyIdIsNotPresent() {
-        testee.accessKeyId = Optional.ofNullable(null);
+        testee.accessKeyId = Optional.empty();
         IllegalStateException thrown = assertThrows(
                 IllegalStateException.class,
-                () -> testee.validate());
+                testee::validate);
 
         assertEquals("Access key id not provided", thrown.getMessage());
     }
@@ -34,10 +34,10 @@ class LoggingCloudWatchConfigTest {
     @Test
     void shouldThrowIllegalStateExceptionWhenAccessKeySecretIsNotPresent() {
         testee.accessKeyId = Optional.of("someAccessKeyId");
-        testee.accessKeySecret = Optional.ofNullable(null);
+        testee.accessKeySecret = Optional.empty();
         IllegalStateException thrown = assertThrows(
                 IllegalStateException.class,
-                () -> testee.validate());
+                testee::validate);
 
         assertEquals("Access key secret not provided", thrown.getMessage());
     }
@@ -46,10 +46,10 @@ class LoggingCloudWatchConfigTest {
     void shouldThrowIllegalStateExceptionWhenRegionIsNotPresent() {
         testee.accessKeyId = Optional.of("someAccessKeyId");
         testee.accessKeySecret = Optional.of("someAccessKeySecret");
-        testee.region = Optional.ofNullable(null);
+        testee.region = Optional.empty();
         IllegalStateException thrown = assertThrows(
                 IllegalStateException.class,
-                () -> testee.validate());
+                testee::validate);
 
         assertEquals("Region not provided", thrown.getMessage());
     }
@@ -59,10 +59,10 @@ class LoggingCloudWatchConfigTest {
         testee.accessKeyId = Optional.of("someAccessKeyId");
         testee.accessKeySecret = Optional.of("someAccessKeySecret");
         testee.region = Optional.of("someRegion");
-        testee.logGroup = Optional.ofNullable(null);
+        testee.logGroup = Optional.empty();
         IllegalStateException thrown = assertThrows(
                 IllegalStateException.class,
-                () -> testee.validate());
+                testee::validate);
 
         assertEquals("Log group not provided", thrown.getMessage());
     }
@@ -73,10 +73,10 @@ class LoggingCloudWatchConfigTest {
         testee.accessKeySecret = Optional.of("someAccessKeySecret");
         testee.region = Optional.of("someRegion");
         testee.logGroup = Optional.of("someLogGroup");
-        testee.logStreamName = Optional.ofNullable(null);
+        testee.logStreamName = Optional.empty();
         IllegalStateException thrown = assertThrows(
                 IllegalStateException.class,
-                () -> testee.validate());
+                testee::validate);
 
         assertEquals("Log stream not provided", thrown.getMessage());
     }
