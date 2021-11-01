@@ -43,7 +43,6 @@ public class LoggingCloudWatchConfig {
 
     /**
      * CW access key secret
-     *
      */
     @ConfigItem
     public Optional<String> accessKeySecret;
@@ -62,7 +61,6 @@ public class LoggingCloudWatchConfig {
 
     /**
      * CW log stream
-     *
      */
     @ConfigItem
     public Optional<String> logStreamName;
