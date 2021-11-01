@@ -19,8 +19,7 @@ class LoggingCloudwatchProcessor {
 
     @BuildStep
     @Record(ExecutionTime.RUNTIME_INIT)
-    LogHandlerBuildItem addCloudwatchLogHandler(final LoggingCloudWatchConfig config,
-                                                final LoggingCloudWatchHandlerValueFactory cloudWatchHandlerValueFactory) {
+    LogHandlerBuildItem addCloudwatchLogHandler(final LoggingCloudWatchConfig config, final LoggingCloudWatchHandlerValueFactory cloudWatchHandlerValueFactory) {
         return new LogHandlerBuildItem(cloudWatchHandlerValueFactory.create(config));
     }
 }
