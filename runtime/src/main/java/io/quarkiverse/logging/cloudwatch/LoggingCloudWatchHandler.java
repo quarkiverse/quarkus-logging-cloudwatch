@@ -66,6 +66,7 @@ class LoggingCloudWatchHandler extends Handler {
             return;
         }
 
+        record.setMessage(String.format(record.getMessage(), record.getParameters()));
         ElasticCommonSchemaLogFormatter formatter = new ElasticCommonSchemaLogFormatter();
         String body = formatter.format(record);
 
