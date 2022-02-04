@@ -16,7 +16,6 @@
  */
 package io.quarkiverse.logging.cloudwatch;
 
-import java.util.Optional;
 import java.util.logging.Level;
 
 import io.quarkus.runtime.annotations.ConfigItem;
@@ -39,59 +38,35 @@ public class LoggingCloudWatchConfig {
      * CW access key ID
      */
     @ConfigItem
-    public Optional<String> accessKeyId;
+    public String accessKeyId;
 
     /**
      * CW access key secret
      */
     @ConfigItem
-    public Optional<String> accessKeySecret;
+    public String accessKeySecret;
 
     /**
      * Region of deployment
      */
     @ConfigItem
-    public Optional<String> region;
+    public String region;
 
     /**
      * CW log group
      */
     @ConfigItem
-    public Optional<String> logGroup;
+    public String logGroup;
 
     /**
      * CW log stream
      */
     @ConfigItem
-    public Optional<String> logStreamName;
+    public String logStreamName;
 
     /**
      * The CW log level.
      */
     @ConfigItem(defaultValue = "WARN")
     public Level level;
-
-    /*
-     * We need to validate that the values are present, even if marked as optional.
-     * We need to mark them as optional, as otherwise the config would mark them
-     * as bad even before the extension can check if the values are needed at all.
-     */
-    public void validate() {
-
-        if (!accessKeyId.isPresent()) {
-            throw new IllegalStateException("Access key id not provided");
-        }
-        if (!accessKeySecret.isPresent()) {
-            throw new IllegalStateException("Access key secret not provided");
-        }
-        if (!region.isPresent()) {
-            throw new IllegalStateException("Region not provided");
-        }
-        if (!logGroup.isPresent()) {
-            throw new IllegalStateException("Log group not provided");
-        }
-        if (!logStreamName.isPresent()) {
-            throw new IllegalStateException("Log stream not provided");
-        }
-    }
 }
