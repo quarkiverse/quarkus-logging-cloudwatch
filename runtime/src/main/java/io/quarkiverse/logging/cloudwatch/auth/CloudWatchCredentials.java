@@ -30,11 +30,11 @@ class CloudWatchCredentials implements AWSCredentials {
 
     @Override
     public String getAWSAccessKeyId() {
-        return config.accessKeyId;
+        return config.accessKeyId.get();
     }
 
     @Override
     public String getAWSSecretKey() {
-        return config.accessKeySecret;
+        return config.accessKeySecret.get();
     }
 }
