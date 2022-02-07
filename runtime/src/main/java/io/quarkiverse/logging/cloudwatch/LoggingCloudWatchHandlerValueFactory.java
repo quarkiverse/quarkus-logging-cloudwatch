@@ -42,18 +42,20 @@ public class LoggingCloudWatchHandlerValueFactory {
             return new RuntimeValue<>(Optional.empty());
         }
 
+        config.validate();
+
         LOGGER.info("Initializing Quarkus Logging Cloudwatch Extension");
-        LOGGER.info("Logging to log-group: " + config.logGroup + " and log-stream: " + config.logStreamName);
+        LOGGER.info("Logging to log-group: " + config.logGroup.get() + " and log-stream: " + config.logStreamName.get());
 
         AWSLogsClientBuilder clientBuilder = AWSLogsClientBuilder.standard();
         clientBuilder.setCredentials(new CloudWatchCredentialsProvider(config));
-        clientBuilder.setRegion(config.region);
+        clientBuilder.setRegion(config.region.get());
 
         AWSLogs awsLogs = clientBuilder.build();
         String token = createLogStreamIfNeeded(awsLogs, config);
 
-        LoggingCloudWatchHandler handler = new LoggingCloudWatchHandler(awsLogs, config.logGroup,
-                config.logStreamName, token);
+        LoggingCloudWatchHandler handler = new LoggingCloudWatchHandler(awsLogs, config.logGroup.get(),
+                config.logStreamName.get(), token);
         handler.setLevel(config.level);
 
         return new RuntimeValue<>(Optional.of(handler));
@@ -62,21 +64,21 @@ public class LoggingCloudWatchHandlerValueFactory {
     private String createLogStreamIfNeeded(AWSLogs awsLogs, LoggingCloudWatchConfig config) {
         String token = null;
 
-        DescribeLogStreamsRequest describeLogStreamsRequest = new DescribeLogStreamsRequest(config.logGroup);
+        DescribeLogStreamsRequest describeLogStreamsRequest = new DescribeLogStreamsRequest(config.logGroup.get());
         // We need to filter down, as CW returns by default only 50 streams and ours may not be in it.
-        describeLogStreamsRequest.withLogStreamNamePrefix(config.logStreamName);
+        describeLogStreamsRequest.withLogStreamNamePrefix(config.logStreamName.get());
         List<LogStream> logStreams = awsLogs.describeLogStreams(describeLogStreamsRequest).getLogStreams();
 
         boolean found = false;
         for (LogStream ls : logStreams) {
-            if (ls.getLogStreamName().equals(config.logStreamName)) {
+            if (ls.getLogStreamName().equals(config.logStreamName.get())) {
                 found = true;
                 token = ls.getUploadSequenceToken();
             }
         }
 
         if (!found) {
-            awsLogs.createLogStream(new CreateLogStreamRequest(config.logGroup, config.logStreamName));
+            awsLogs.createLogStream(new CreateLogStreamRequest(config.logGroup.get(), config.logStreamName.get()));
         }
         return token;
     }
