@@ -24,6 +24,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.version>2.7.2.Final</quarkus.version>
         <aws.version>1.12.167</aws.version>
+        <aws.common.version>1.0.4</aws.common.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -38,6 +39,13 @@
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-bom</artifactId>
                 <version>${aws.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.quarkiverse.amazonservices</groupId>
+                <artifactId>quarkus-amazon-common</artifactId>
+                <version>${aws.common.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
