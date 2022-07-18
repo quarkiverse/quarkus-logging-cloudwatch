@@ -16,6 +16,7 @@
  */
 package io.quarkiverse.logging.cloudwatch;
 
+import java.time.Duration;
 import java.util.Optional;
 import java.util.logging.Level;
 
@@ -70,6 +71,27 @@ public class LoggingCloudWatchConfig {
      */
     @ConfigItem(defaultValue = "WARN")
     public Level level;
+
+    /**
+     * Number of log events sent to CloudWatch per batch.
+     * Defaults to 10,000 which is the maximum number of log events per batch allowed by CloudWatch.
+     */
+    @ConfigItem(defaultValue = "10000")
+    public int batchSize;
+
+    /**
+     * Period between two batch executions.
+     * Defaults to 5 seconds.
+     */
+    @ConfigItem(defaultValue = "5s")
+    public Duration batchPeriod;
+
+    /**
+     * Maximum size of the log events queue.
+     * If this is not set, the queue will have a capacity of {@link Integer#MAX_VALUE}.
+     */
+    @ConfigItem
+    public Optional<Integer> maxQueueSize;
 
     /*
      * We need to validate that the values are present, even if marked as optional.
