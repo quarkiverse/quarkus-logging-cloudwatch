@@ -45,6 +45,7 @@ class LoggingCloudWatchHandler extends Handler {
     private String logGroupName;
     private String sequenceToken;
     private int batchSize;
+    private Optional<String> serviceEnvironment;
 
     private BlockingQueue<InputLogEvent> eventBuffer;
 
@@ -56,7 +57,7 @@ class LoggingCloudWatchHandler extends Handler {
     }
 
     LoggingCloudWatchHandler(AWSLogs awsLogs, String logGroup, String logStreamName, String token,
-            Optional<Integer> maxQueueSize, int batchSize, Duration batchPeriod) {
+            Optional<Integer> maxQueueSize, int batchSize, Duration batchPeriod, Optional<String> serviceEnvironment) {
         this.logGroupName = logGroup;
         this.awsLogs = awsLogs;
         this.logStreamName = logStreamName;
@@ -67,6 +68,7 @@ class LoggingCloudWatchHandler extends Handler {
             eventBuffer = new LinkedBlockingQueue<>();
         }
         this.batchSize = batchSize;
+        this.serviceEnvironment = serviceEnvironment;
 
         this.publisher = new Publisher();
         scheduler.scheduleAtFixedRate(publisher, 5, batchPeriod.toMillis(), TimeUnit.MILLISECONDS);
@@ -79,7 +81,7 @@ class LoggingCloudWatchHandler extends Handler {
         }
 
         record.setMessage(String.format(record.getMessage(), record.getParameters()));
-        ElasticCommonSchemaLogFormatter formatter = new ElasticCommonSchemaLogFormatter();
+        ElasticCommonSchemaLogFormatter formatter = new ElasticCommonSchemaLogFormatter(serviceEnvironment);
         String body = formatter.format(record);
 
         InputLogEvent logEvent = new InputLogEvent()

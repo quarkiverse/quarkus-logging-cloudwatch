@@ -18,16 +18,21 @@ package io.quarkiverse.logging.cloudwatch.format;
 
 import static co.elastic.logging.EcsJsonSerializer.toNullSafeString;
 
+import java.util.Optional;
+
 import org.jboss.logmanager.ExtFormatter;
 import org.jboss.logmanager.ExtLogRecord;
 
 import co.elastic.logging.EcsJsonSerializer;
 import co.elastic.logging.JsonUtils;
-import io.quarkus.runtime.configuration.ProfileManager;
 
 public class ElasticCommonSchemaLogFormatter extends ExtFormatter {
 
-    private final String environment = ProfileManager.getActiveProfile();
+    private Optional<String> serviceEnvironment;
+
+    public ElasticCommonSchemaLogFormatter(Optional<String> serviceEnvironment) {
+        this.serviceEnvironment = serviceEnvironment;
+    }
 
     @Override
     public String format(ExtLogRecord record) {
@@ -36,7 +41,9 @@ public class ElasticCommonSchemaLogFormatter extends ExtFormatter {
         EcsJsonSerializer.serializeObjectStart(builder, record.getMillis());
         EcsJsonSerializer.serializeLogLevel(builder, record.getLevel().getName());
         EcsJsonSerializer.serializeFormattedMessage(builder, record.getMessage());
-        serializeField(builder, this.environment);
+        if (serviceEnvironment.isPresent()) {
+            serializeField(builder, serviceEnvironment.get());
+        }
         EcsJsonSerializer.serializeThreadName(builder, record.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, record.getLoggerName());
         EcsJsonSerializer.serializeMDC(builder, record.getMdcCopy());
