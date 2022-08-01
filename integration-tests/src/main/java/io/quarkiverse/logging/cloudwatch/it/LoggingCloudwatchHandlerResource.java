@@ -20,19 +20,18 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
-import org.jboss.logging.Logger;
 import org.jboss.logging.MDC;
+
+import io.quarkus.logging.Log;
 
 @Path("/logging-cloudwatch")
 @ApplicationScoped
 public class LoggingCloudwatchHandlerResource {
 
-    private static final Logger logger = Logger.getLogger(LoggingCloudwatchHandlerResource.class);
-
     @GET
     public String hello() {
         MDC.put("mdc-key", "mdc-value");
-        logger.info("hello cloudwatch");
+        Log.info("hello cloudwatch");
 
         return "Hello logging-cloudwatch";
     }
