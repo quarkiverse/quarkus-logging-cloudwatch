@@ -16,10 +16,14 @@
  */
 package io.quarkiverse.logging.cloudwatch;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.*;
@@ -28,6 +32,7 @@ import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.model.InputLogEvent;
 import com.amazonaws.services.logs.model.InvalidSequenceTokenException;
 import com.amazonaws.services.logs.model.PutLogEventsRequest;
+import com.amazonaws.services.logs.model.PutLogEventsResult;
 
 import io.quarkiverse.logging.cloudwatch.format.ElasticCommonSchemaLogFormatter;
 
@@ -39,8 +44,9 @@ class LoggingCloudWatchHandler extends Handler {
     private String logStreamName;
     private String logGroupName;
     private String sequenceToken;
+    private int batchSize;
 
-    private List<InputLogEvent> eventBuffer;
+    private BlockingQueue<InputLogEvent> eventBuffer;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -49,15 +55,21 @@ class LoggingCloudWatchHandler extends Handler {
     LoggingCloudWatchHandler() {
     }
 
-    LoggingCloudWatchHandler(AWSLogs awsLogs, String logGroup, String logStreamName, String token) {
+    LoggingCloudWatchHandler(AWSLogs awsLogs, String logGroup, String logStreamName, String token,
+            Optional<Integer> maxQueueSize, int batchSize, Duration batchPeriod) {
         this.logGroupName = logGroup;
         this.awsLogs = awsLogs;
         this.logStreamName = logStreamName;
         this.sequenceToken = token;
-        this.eventBuffer = new ArrayList<>();
+        if (maxQueueSize.isPresent()) {
+            eventBuffer = new LinkedBlockingQueue<>(maxQueueSize.get());
+        } else {
+            eventBuffer = new LinkedBlockingQueue<>();
+        }
+        this.batchSize = batchSize;
 
         this.publisher = new Publisher();
-        scheduler.scheduleAtFixedRate(publisher, 0, 5, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(publisher, 5, batchPeriod.toMillis(), TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -75,7 +87,11 @@ class LoggingCloudWatchHandler extends Handler {
                 .withTimestamp(System.currentTimeMillis());
 
         // Queue this up, so that it can be flushed later in batch asynchronously
-        eventBuffer.add(logEvent);
+        boolean inserted = eventBuffer.offer(logEvent);
+        if (!inserted) {
+            LOGGER.warning(
+                    "Maximum size of the CloudWatch log events queue reached. Consider increasing that size from the configuration.");
+        }
     }
 
     /**
@@ -100,14 +116,10 @@ class LoggingCloudWatchHandler extends Handler {
 
     private class Publisher implements Runnable {
 
-        private List<InputLogEvent> events;
-
         @Override
         public void run() {
-            synchronized (eventBuffer) {
-                events = new ArrayList<>(eventBuffer);
-                eventBuffer.clear();
-            }
+            List<InputLogEvent> events = new ArrayList<>(Math.min(eventBuffer.size(), batchSize));
+            eventBuffer.drainTo(events, batchSize);
             boolean workingSequenceToken = false;
             if (events.size() > 0) {
                 PutLogEventsRequest request = new PutLogEventsRequest();
@@ -120,7 +132,13 @@ class LoggingCloudWatchHandler extends Handler {
                     request.setSequenceToken(sequenceToken);
 
                     try {
-                        sequenceToken = awsLogs.putLogEvents(request).getNextSequenceToken();
+                        /*
+                         * The following call never ends when the batch size is higher than 1,048,576 bytes
+                         * which is the maximum size allowed by CloudWatch as explained in their Javadoc.
+                         * See https://github.com/aws/aws-sdk-java/issues/2807
+                         */
+                        PutLogEventsResult result = awsLogs.putLogEvents(request);
+                        sequenceToken = result.getNextSequenceToken();
                         workingSequenceToken = true;
                         counter = 10;
                     } catch (InvalidSequenceTokenException e) {
