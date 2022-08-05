@@ -93,6 +93,12 @@ public class LoggingCloudWatchConfig {
     @ConfigItem
     public Optional<Integer> maxQueueSize;
 
+    /**
+     * Service environment added as a {@code service.environment} field to each log record when available.
+     */
+    @ConfigItem
+    public Optional<String> serviceEnvironment;
+
     /*
      * We need to validate that the values are present, even if marked as optional.
      * We need to mark them as optional, as otherwise the config would mark them
