@@ -71,4 +71,42 @@ The log-stream name. This is created if it does not exist
 --|string
 |`<my-log-stream>`
 
+
+a| [[quarkus-log-cloudwatch-batch-size]]`link:#quarkus-log-cloudwatch-batch-size[quarkus.log.cloudwatch.batch-size]`
+
+[.description]
+--
+Number of log events sent to CloudWatch per batch.
+Defaults to 10,000 which is the maximum number of log events per batch allowed by CloudWatch.
+--|int
+|`10000`
+
+
+a| [[quarkus-log-cloudwatch-batch-period]]`link:#quarkus-log-cloudwatch-batch-period[quarkus.log.cloudwatch.batch-period]`
+
+[.description]
+--
+Period between two batch executions.
+--|Duration
+|`5s`
+
+
+a| [[quarkus-log-cloudwatch-max-queue-size]]`link:#quarkus-log-cloudwatch-max-queue-size[quarkus.log.cloudwatch.max-queue-size]`
+
+[.description]
+--
+Optional maximum size of the log events queue.
+If this is not set, the queue will have a capacity of `Integer#MAX_VALUE`.
+--|int
+|
+
+
+a| [[quarkus-log-cloudwatch-service-environment]]`link:#quarkus-log-cloudwatch-service-environment[quarkus.log.cloudwatch.service-environment]`
+
+[.description]
+--
+Optional service environment added to each log record when available.
+--|string
+|
+
 |===
