@@ -19,7 +19,6 @@ package io.quarkiverse.logging.cloudwatch;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Handler;
-import java.util.logging.Logger;
 
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.AWSLogsClientBuilder;
@@ -28,24 +27,23 @@ import com.amazonaws.services.logs.model.DescribeLogStreamsRequest;
 import com.amazonaws.services.logs.model.LogStream;
 
 import io.quarkiverse.logging.cloudwatch.auth.CloudWatchCredentialsProvider;
+import io.quarkus.logging.Log;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
 
 @Recorder
 public class LoggingCloudWatchHandlerValueFactory {
 
-    private static final Logger LOGGER = Logger.getLogger("LoggingCloudWatch");
-
     public RuntimeValue<Optional<Handler>> create(final LoggingCloudWatchConfig config) {
         if (!config.enabled) {
-            LOGGER.info("Quarkus Logging Cloudwatch Extension is not enabled");
+            Log.info("Quarkus Logging Cloudwatch Extension is not enabled");
             return new RuntimeValue<>(Optional.empty());
         }
 
         config.validate();
 
-        LOGGER.info("Initializing Quarkus Logging Cloudwatch Extension");
-        LOGGER.info("Logging to log-group: " + config.logGroup.get() + " and log-stream: " + config.logStreamName.get());
+        Log.info("Initializing Quarkus Logging Cloudwatch Extension");
+        Log.infof("Logging to log-group: %s and log-stream: %s", config.logGroup.get(), config.logStreamName.get());
 
         AWSLogsClientBuilder clientBuilder = AWSLogsClientBuilder.standard();
         clientBuilder.setCredentials(new CloudWatchCredentialsProvider(config));

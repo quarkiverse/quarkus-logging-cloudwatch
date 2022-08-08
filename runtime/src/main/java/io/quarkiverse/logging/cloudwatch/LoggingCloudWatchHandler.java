@@ -26,7 +26,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.*;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.model.InputLogEvent;
@@ -35,10 +36,9 @@ import com.amazonaws.services.logs.model.PutLogEventsRequest;
 import com.amazonaws.services.logs.model.PutLogEventsResult;
 
 import io.quarkiverse.logging.cloudwatch.format.ElasticCommonSchemaLogFormatter;
+import io.quarkus.logging.Log;
 
 class LoggingCloudWatchHandler extends Handler {
-
-    private static final Logger LOGGER = Logger.getLogger("LoggingCloudWatch");
 
     private AWSLogs awsLogs;
     private String logStreamName;
@@ -91,7 +91,7 @@ class LoggingCloudWatchHandler extends Handler {
         // Queue this up, so that it can be flushed later in batch asynchronously
         boolean inserted = eventBuffer.offer(logEvent);
         if (!inserted) {
-            LOGGER.warning(
+            Log.warn(
                     "Maximum size of the CloudWatch log events queue reached. Consider increasing that size from the configuration.");
         }
     }
@@ -109,10 +109,10 @@ class LoggingCloudWatchHandler extends Handler {
 
     @Override
     public void close() throws SecurityException {
-        LOGGER.info("Shutting down and awaiting termination");
+        Log.info("Shutting down and awaiting termination");
         shutdownAndAwaitTermination(scheduler);
 
-        LOGGER.info("Trying to send of last log messages after shutdown.");
+        Log.info("Trying to send of last log messages after shutdown.");
         publisher.run();
     }
 
@@ -145,10 +145,10 @@ class LoggingCloudWatchHandler extends Handler {
                         counter = 10;
                     } catch (InvalidSequenceTokenException e) {
                         String exceptionMessage = e.getMessage();
-                        LOGGER.info("exception message: " + exceptionMessage);
+                        Log.infof("exception message: %s", exceptionMessage);
 
                         sequenceToken = extractValidSequenceToken(exceptionMessage);
-                        LOGGER.info("extracted sequence token: " + sequenceToken);
+                        Log.infof("extracted sequence token: %s", sequenceToken);
 
                         workingSequenceToken = false;
                     }
@@ -159,7 +159,7 @@ class LoggingCloudWatchHandler extends Handler {
 
         private int checkAndIncreaseCounter(int counter) {
             if (counter == 9) {
-                LOGGER.severe("Last counter iteration now. Too many attempts. Will abort trying now. ");
+                Log.error("Last counter iteration now. Too many attempts. Will abort trying now.");
             }
             counter++;
             return counter;
