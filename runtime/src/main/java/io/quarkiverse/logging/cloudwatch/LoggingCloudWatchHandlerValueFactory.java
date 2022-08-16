@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Handler;
 
+import org.jboss.logging.Logger;
+
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.AWSLogsClientBuilder;
 import com.amazonaws.services.logs.model.CreateLogStreamRequest;
@@ -29,7 +31,6 @@ import com.amazonaws.services.logs.model.LogStream;
 import io.quarkiverse.logging.cloudwatch.auth.CloudWatchCredentialsProvider;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
-import org.jboss.logging.Logger;
 
 @Recorder
 public class LoggingCloudWatchHandlerValueFactory {
