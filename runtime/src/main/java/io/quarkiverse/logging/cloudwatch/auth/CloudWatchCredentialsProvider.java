@@ -16,12 +16,11 @@
  */
 package io.quarkiverse.logging.cloudwatch.auth;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
-
 import io.quarkiverse.logging.cloudwatch.LoggingCloudWatchConfig;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 
-public class CloudWatchCredentialsProvider implements AWSCredentialsProvider {
+public class CloudWatchCredentialsProvider implements AwsCredentialsProvider {
 
     private final LoggingCloudWatchConfig config;
 
@@ -30,11 +29,7 @@ public class CloudWatchCredentialsProvider implements AWSCredentialsProvider {
     }
 
     @Override
-    public AWSCredentials getCredentials() {
+    public AwsCredentials resolveCredentials() {
         return new CloudWatchCredentials(config);
-    }
-
-    @Override
-    public void refresh() {
     }
 }
