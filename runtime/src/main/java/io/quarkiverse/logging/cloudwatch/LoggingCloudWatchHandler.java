@@ -29,18 +29,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
-import com.amazonaws.services.logs.AWSLogs;
-import com.amazonaws.services.logs.model.InputLogEvent;
-import com.amazonaws.services.logs.model.InvalidSequenceTokenException;
-import com.amazonaws.services.logs.model.PutLogEventsRequest;
-import com.amazonaws.services.logs.model.PutLogEventsResult;
-
 import io.quarkiverse.logging.cloudwatch.format.ElasticCommonSchemaLogFormatter;
 import io.quarkus.logging.Log;
+import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient;
+import software.amazon.awssdk.services.cloudwatchlogs.model.InputLogEvent;
+import software.amazon.awssdk.services.cloudwatchlogs.model.InvalidSequenceTokenException;
+import software.amazon.awssdk.services.cloudwatchlogs.model.PutLogEventsRequest;
 
 class LoggingCloudWatchHandler extends Handler {
 
-    private AWSLogs awsLogs;
+    private static final int BATCH_MAX_ATTEMPTS = 10;
+
+    private CloudWatchLogsClient cloudWatchLogsClient;
     private String logStreamName;
     private String logGroupName;
     private String sequenceToken;
@@ -56,10 +56,10 @@ class LoggingCloudWatchHandler extends Handler {
     LoggingCloudWatchHandler() {
     }
 
-    LoggingCloudWatchHandler(AWSLogs awsLogs, String logGroup, String logStreamName, String token,
+    LoggingCloudWatchHandler(CloudWatchLogsClient cloudWatchLogsClient, String logGroup, String logStreamName, String token,
             Optional<Integer> maxQueueSize, int batchSize, Duration batchPeriod, Optional<String> serviceEnvironment) {
         this.logGroupName = logGroup;
-        this.awsLogs = awsLogs;
+        this.cloudWatchLogsClient = cloudWatchLogsClient;
         this.logStreamName = logStreamName;
         this.sequenceToken = token;
         if (maxQueueSize.isPresent()) {
@@ -84,9 +84,10 @@ class LoggingCloudWatchHandler extends Handler {
         ElasticCommonSchemaLogFormatter formatter = new ElasticCommonSchemaLogFormatter(serviceEnvironment);
         String body = formatter.format(record);
 
-        InputLogEvent logEvent = new InputLogEvent()
-                .withMessage(body)
-                .withTimestamp(System.currentTimeMillis());
+        InputLogEvent logEvent = InputLogEvent.builder()
+                .message(body)
+                .timestamp(System.currentTimeMillis())
+                .build();
 
         // Queue this up, so that it can be flushed later in batch asynchronously
         boolean inserted = eventBuffer.offer(logEvent);
@@ -120,54 +121,52 @@ class LoggingCloudWatchHandler extends Handler {
 
         @Override
         public void run() {
+
+            // First, let's poll from the queue the events that will be part of the batch.
             List<InputLogEvent> events = new ArrayList<>(Math.min(eventBuffer.size(), batchSize));
             eventBuffer.drainTo(events, batchSize);
-            boolean workingSequenceToken = false;
             if (events.size() > 0) {
-                PutLogEventsRequest request = new PutLogEventsRequest();
-                request.setLogEvents(events);
-                request.setLogGroupName(logGroupName);
-                request.setLogStreamName(logStreamName);
 
-                int counter = 0;
-                while (!workingSequenceToken && counter < 10) {
-                    request.setSequenceToken(sequenceToken);
+                // The sequence token needed for this request is set below.
+                PutLogEventsRequest request = PutLogEventsRequest.builder()
+                        .logGroupName(logGroupName)
+                        .logStreamName(logStreamName)
+                        .logEvents(events)
+                        .build();
+
+                /*
+                 * The current sequence token may not be valid if it was used by another application or pod.
+                 * If that happens, we'll retry using the token from the InvalidSequenceTokenException.
+                 */
+                for (int i = 1; i <= BATCH_MAX_ATTEMPTS; i++) {
+
+                    request = request.toBuilder()
+                            .sequenceToken(sequenceToken)
+                            .build();
 
                     try {
                         /*
-                         * The following call never ends when the batch size is higher than 1,048,576 bytes
-                         * which is the maximum size allowed by CloudWatch as explained in their Javadoc.
-                         * See https://github.com/aws/aws-sdk-java/issues/2807
+                         * It's time to put the log events into CloudWatch.
+                         * If that works, we'll use the sequence token from the response for the next put call.
                          */
-                        PutLogEventsResult result = awsLogs.putLogEvents(request);
-                        sequenceToken = result.getNextSequenceToken();
-                        workingSequenceToken = true;
-                        counter = 10;
+                        sequenceToken = cloudWatchLogsClient.putLogEvents(request).nextSequenceToken();
+                        // The sequence token was accepted, we don't need to retry.
+                        break;
                     } catch (InvalidSequenceTokenException e) {
-                        String exceptionMessage = e.getMessage();
-                        Log.infof("exception message: %s", exceptionMessage);
+                        Log.debugf("PutLogEvents call failed because of an invalid sequence token", e);
 
-                        sequenceToken = extractValidSequenceToken(exceptionMessage);
-                        Log.infof("extracted sequence token: %s", sequenceToken);
+                        // We'll use the sequence token from the exception for the next put call.
+                        sequenceToken = e.expectedSequenceToken();
 
-                        workingSequenceToken = false;
+                        // If the last attempt failed, the log events from the current batch are lost.
+                        if (i == BATCH_MAX_ATTEMPTS) {
+                            Log.warn(
+                                    "Too many retries for a PutLogEvents call, log events from the current batch will not be sent to CloudWatch");
+                        }
                     }
-                    counter = checkAndIncreaseCounter(counter);
                 }
             }
         }
-
-        private int checkAndIncreaseCounter(int counter) {
-            if (counter == 9) {
-                Log.error("Last counter iteration now. Too many attempts. Will abort trying now.");
-            }
-            counter++;
-            return counter;
-        }
-    }
-
-    String extractValidSequenceToken(String exceptionMessage) {
-        return exceptionMessage.substring(exceptionMessage.indexOf(":") + 1, exceptionMessage.indexOf("(")).trim();
     }
 
     private void shutdownAndAwaitTermination(ExecutorService pool) {

@@ -16,11 +16,10 @@
  */
 package io.quarkiverse.logging.cloudwatch.auth;
 
-import com.amazonaws.auth.AWSCredentials;
-
 import io.quarkiverse.logging.cloudwatch.LoggingCloudWatchConfig;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
 
-class CloudWatchCredentials implements AWSCredentials {
+class CloudWatchCredentials implements AwsCredentials {
 
     private final LoggingCloudWatchConfig config;
 
@@ -29,12 +28,12 @@ class CloudWatchCredentials implements AWSCredentials {
     }
 
     @Override
-    public String getAWSAccessKeyId() {
+    public String accessKeyId() {
         return config.accessKeyId.get();
     }
 
     @Override
-    public String getAWSSecretKey() {
+    public String secretAccessKey() {
         return config.accessKeySecret.get();
     }
 }
