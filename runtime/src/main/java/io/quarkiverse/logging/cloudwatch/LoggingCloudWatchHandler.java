@@ -121,50 +121,53 @@ class LoggingCloudWatchHandler extends Handler {
 
         @Override
         public void run() {
+            try {
+                // First, let's poll from the queue the events that will be part of the batch.
+                List<InputLogEvent> events = new ArrayList<>(Math.min(eventBuffer.size(), batchSize));
+                eventBuffer.drainTo(events, batchSize);
+                if (events.size() > 0) {
 
-            // First, let's poll from the queue the events that will be part of the batch.
-            List<InputLogEvent> events = new ArrayList<>(Math.min(eventBuffer.size(), batchSize));
-            eventBuffer.drainTo(events, batchSize);
-            if (events.size() > 0) {
-
-                // The sequence token needed for this request is set below.
-                PutLogEventsRequest request = PutLogEventsRequest.builder()
-                        .logGroupName(logGroupName)
-                        .logStreamName(logStreamName)
-                        .logEvents(events)
-                        .build();
-
-                /*
-                 * The current sequence token may not be valid if it was used by another application or pod.
-                 * If that happens, we'll retry using the token from the InvalidSequenceTokenException.
-                 */
-                for (int i = 1; i <= BATCH_MAX_ATTEMPTS; i++) {
-
-                    request = request.toBuilder()
-                            .sequenceToken(sequenceToken)
+                    // The sequence token needed for this request is set below.
+                    PutLogEventsRequest request = PutLogEventsRequest.builder()
+                            .logGroupName(logGroupName)
+                            .logStreamName(logStreamName)
+                            .logEvents(events)
                             .build();
 
-                    try {
-                        /*
-                         * It's time to put the log events into CloudWatch.
-                         * If that works, we'll use the sequence token from the response for the next put call.
-                         */
-                        sequenceToken = cloudWatchLogsClient.putLogEvents(request).nextSequenceToken();
-                        // The sequence token was accepted, we don't need to retry.
-                        break;
-                    } catch (InvalidSequenceTokenException e) {
-                        Log.debugf("PutLogEvents call failed because of an invalid sequence token", e);
+                    /*
+                     * The current sequence token may not be valid if it was used by another application or pod.
+                     * If that happens, we'll retry using the token from the InvalidSequenceTokenException.
+                     */
+                    for (int i = 1; i <= BATCH_MAX_ATTEMPTS; i++) {
 
-                        // We'll use the sequence token from the exception for the next put call.
-                        sequenceToken = e.expectedSequenceToken();
+                        request = request.toBuilder()
+                                .sequenceToken(sequenceToken)
+                                .build();
 
-                        // If the last attempt failed, the log events from the current batch are lost.
-                        if (i == BATCH_MAX_ATTEMPTS) {
-                            Log.warn(
-                                    "Too many retries for a PutLogEvents call, log events from the current batch will not be sent to CloudWatch");
+                        try {
+                            /*
+                             * It's time to put the log events into CloudWatch.
+                             * If that works, we'll use the sequence token from the response for the next put call.
+                             */
+                            sequenceToken = cloudWatchLogsClient.putLogEvents(request).nextSequenceToken();
+                            // The sequence token was accepted, we don't need to retry.
+                            break;
+                        } catch (InvalidSequenceTokenException e) {
+                            Log.debugf("PutLogEvents call failed because of an invalid sequence token", e);
+
+                            // We'll use the sequence token from the exception for the next put call.
+                            sequenceToken = e.expectedSequenceToken();
+
+                            // If the last attempt failed, the log events from the current batch are lost.
+                            if (i == BATCH_MAX_ATTEMPTS) {
+                                Log.warn(
+                                        "Too many retries for a PutLogEvents call, log events from the current batch will not be sent to CloudWatch");
+                            }
                         }
                     }
                 }
+            } catch (Throwable t) {
+                Log.error("PutLogEvents call failed, log events from the current batch will not be sent to CloudWatch", t);
             }
         }
     }
