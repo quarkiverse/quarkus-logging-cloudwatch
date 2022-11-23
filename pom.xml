@@ -8,7 +8,7 @@
     </parent>
     <groupId>io.quarkiverse.logging.cloudwatch</groupId>
     <artifactId>quarkus-logging-cloudwatch-parent</artifactId>
-    <version>5.0.1-SNAPSHOT</version>
+    <version>5.1.0</version>
     <packaging>pom</packaging>
     <name>Quarkus - Logging Cloudwatch - Parent</name>
     <modules>
@@ -102,4 +102,8 @@
 
 
     </profiles>
+
+  <scm>
+    <tag>5.1.0</tag>
+  </scm>
 </project>
