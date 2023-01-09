@@ -51,7 +51,7 @@ a| [[quarkus-log-cloudwatch-region]]`link:#quarkus-log-cloudwatch-region[quarkus
 --
 The region to log to
 --|string
-|`us-east-1`
+|`<your region>`
 
 
 a| [[quarkus-log-cloudwatch-log-group]]`link:#quarkus-log-cloudwatch-log-group[quarkus.log.cloudwatch.log-group]`
