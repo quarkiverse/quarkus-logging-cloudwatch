@@ -105,20 +105,19 @@ public class LoggingCloudWatchConfig {
      * as bad even before the extension can check if the values are needed at all.
      */
     public void validate() {
-
-        if (!accessKeyId.isPresent()) {
+        if (accessKeyId.isEmpty()) {
             throw new IllegalStateException("Access key id not provided");
         }
-        if (!accessKeySecret.isPresent()) {
+        if (accessKeySecret.isEmpty()) {
             throw new IllegalStateException("Access key secret not provided");
         }
-        if (!region.isPresent()) {
+        if (region.isEmpty()) {
             throw new IllegalStateException("Region not provided");
         }
-        if (!logGroup.isPresent()) {
+        if (logGroup.isEmpty()) {
             throw new IllegalStateException("Log group not provided");
         }
-        if (!logStreamName.isPresent()) {
+        if (logStreamName.isEmpty()) {
             throw new IllegalStateException("Log stream not provided");
         }
     }

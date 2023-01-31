@@ -62,11 +62,8 @@ class LoggingCloudWatchHandler extends Handler {
         this.cloudWatchLogsClient = cloudWatchLogsClient;
         this.logStreamName = logStreamName;
         this.sequenceToken = token;
-        if (maxQueueSize.isPresent()) {
-            eventBuffer = new LinkedBlockingQueue<>(maxQueueSize.get());
-        } else {
-            eventBuffer = new LinkedBlockingQueue<>();
-        }
+        eventBuffer = maxQueueSize.<BlockingQueue<InputLogEvent>> map(LinkedBlockingQueue::new)
+                .orElseGet(LinkedBlockingQueue::new);
         this.batchSize = batchSize;
         this.serviceEnvironment = serviceEnvironment;
 
