@@ -8,7 +8,7 @@
 
 ## Welcome to the CloudWatch logging extension!
 
-This extension allows you to send log output directly to AWS CloudWatch.
+This extension allows you to send your application logs to AWS CloudWatch.
 
 ## Documentation
 
