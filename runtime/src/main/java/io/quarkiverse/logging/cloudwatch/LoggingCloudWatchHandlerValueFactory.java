@@ -16,6 +16,8 @@
  */
 package io.quarkiverse.logging.cloudwatch;
 
+import static io.quarkus.runtime.LaunchMode.DEVELOPMENT;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Handler;
@@ -25,6 +27,7 @@ import org.jboss.logging.Logger;
 import io.quarkiverse.logging.cloudwatch.auth.CloudWatchCredentialsProvider;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
+import io.quarkus.runtime.configuration.ProfileManager;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient;
 import software.amazon.awssdk.services.cloudwatchlogs.model.CreateLogStreamRequest;
@@ -42,9 +45,20 @@ public class LoggingCloudWatchHandlerValueFactory {
             return new RuntimeValue<>(Optional.empty());
         }
 
-        config.validate();
-
         LOGGER.info("Initializing Quarkus Logging Cloudwatch Extension");
+
+        List<String> errors = config.validate();
+        if (!errors.isEmpty()) {
+            String errorMsg = "The Quarkus Logging Cloudwatch extension is unable to start because of missing configuration values: "
+                    + String.join(", ", errors);
+            if (ProfileManager.getLaunchMode() == DEVELOPMENT) {
+                LOGGER.error(errorMsg);
+                return new RuntimeValue<>(Optional.empty());
+            } else {
+                throw new IllegalStateException(errorMsg);
+            }
+        }
+
         LOGGER.infof("Logging to log-group: %s and log-stream: %s", config.logGroup.get(), config.logStreamName.get());
 
         CloudWatchLogsClient cloudWatchLogsClient = CloudWatchLogsClient.builder()

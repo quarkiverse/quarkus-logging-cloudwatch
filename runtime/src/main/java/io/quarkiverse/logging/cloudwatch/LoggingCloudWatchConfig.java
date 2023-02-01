@@ -17,6 +17,8 @@
 package io.quarkiverse.logging.cloudwatch;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 
@@ -104,21 +106,24 @@ public class LoggingCloudWatchConfig {
      * We need to mark them as optional, as otherwise the config would mark them
      * as bad even before the extension can check if the values are needed at all.
      */
-    public void validate() {
+    public List<String> validate() {
+        List<String> errors = new ArrayList<>();
         if (accessKeyId.isEmpty()) {
-            throw new IllegalStateException("Access key id not provided");
+            errors.add("quarkus.log.cloudwatch.access-key-id");
         }
         if (accessKeySecret.isEmpty()) {
-            throw new IllegalStateException("Access key secret not provided");
+            errors.add("quarkus.log.cloudwatch.access-key-secret");
         }
         if (region.isEmpty()) {
-            throw new IllegalStateException("Region not provided");
+            errors.add("quarkus.log.cloudwatch.region");
         }
         if (logGroup.isEmpty()) {
-            throw new IllegalStateException("Log group not provided");
+            errors.add("quarkus.log.cloudwatch.log-group");
         }
         if (logStreamName.isEmpty()) {
-            throw new IllegalStateException("Log stream not provided");
+            errors.add("quarkus.log.cloudwatch.log-stream-name");
         }
+
+        return errors;
     }
 }
