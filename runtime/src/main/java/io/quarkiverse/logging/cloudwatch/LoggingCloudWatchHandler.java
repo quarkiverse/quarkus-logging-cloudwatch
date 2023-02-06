@@ -29,8 +29,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
+import org.jboss.logging.Logger;
+
 import io.quarkiverse.logging.cloudwatch.format.ElasticCommonSchemaLogFormatter;
-import io.quarkus.logging.Log;
 import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient;
 import software.amazon.awssdk.services.cloudwatchlogs.model.InputLogEvent;
 import software.amazon.awssdk.services.cloudwatchlogs.model.InvalidSequenceTokenException;
@@ -38,6 +39,7 @@ import software.amazon.awssdk.services.cloudwatchlogs.model.PutLogEventsRequest;
 
 class LoggingCloudWatchHandler extends Handler {
 
+    private static final Logger LOGGER = Logger.getLogger(LoggingCloudWatchHandler.class);
     private static final int BATCH_MAX_ATTEMPTS = 10;
 
     private CloudWatchLogsClient cloudWatchLogsClient;
@@ -89,7 +91,7 @@ class LoggingCloudWatchHandler extends Handler {
         // Queue this up, so that it can be flushed later in batch asynchronously
         boolean inserted = eventBuffer.offer(logEvent);
         if (!inserted) {
-            Log.warn(
+            LOGGER.warn(
                     "Maximum size of the CloudWatch log events queue reached. Consider increasing that size from the configuration.");
         }
     }
@@ -107,10 +109,10 @@ class LoggingCloudWatchHandler extends Handler {
 
     @Override
     public void close() throws SecurityException {
-        Log.info("Shutting down and awaiting termination");
+        LOGGER.info("Shutting down and awaiting termination");
         shutdownAndAwaitTermination(scheduler);
 
-        Log.info("Trying to send of last log messages after shutdown.");
+        LOGGER.info("Trying to send of last log messages after shutdown.");
         publisher.run();
     }
 
@@ -150,21 +152,21 @@ class LoggingCloudWatchHandler extends Handler {
                             // The sequence token was accepted, we don't need to retry.
                             break;
                         } catch (InvalidSequenceTokenException e) {
-                            Log.debugf("PutLogEvents call failed because of an invalid sequence token", e);
+                            LOGGER.debugf("PutLogEvents call failed because of an invalid sequence token", e);
 
                             // We'll use the sequence token from the exception for the next put call.
                             sequenceToken = e.expectedSequenceToken();
 
                             // If the last attempt failed, the log events from the current batch are lost.
                             if (i == BATCH_MAX_ATTEMPTS) {
-                                Log.warn(
+                                LOGGER.warn(
                                         "Too many retries for a PutLogEvents call, log events from the current batch will not be sent to CloudWatch");
                             }
                         }
                     }
                 }
             } catch (Throwable t) {
-                Log.error("PutLogEvents call failed, log events from the current batch will not be sent to CloudWatch", t);
+                LOGGER.error("PutLogEvents call failed, log events from the current batch will not be sent to CloudWatch", t);
             }
         }
     }
