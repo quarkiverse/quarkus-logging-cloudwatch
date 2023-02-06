@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.quarkiverse.logging.cloudwatch</groupId>
         <artifactId>quarkus-logging-cloudwatch-parent</artifactId>
-        <version>5.5.0</version>
+        <version>5.5.1-SNAPSHOT</version>
     </parent>
     <artifactId>quarkus-logging-cloudwatch</artifactId>
     <name>Quarkus - Logging Cloudwatch - Runtime</name>
