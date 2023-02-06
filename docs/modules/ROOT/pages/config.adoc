@@ -109,4 +109,16 @@ Optional service environment added to each log record when available.
 --|string
 |
 
+
+a| [[quarkus-log-cloudwatch-api-call-timeout]]`link:#quarkus-log-cloudwatch-api-call-timeout[quarkus.log.cloudwatch.api-call-timeout]`
+
+[.description]
+--
+Optional amount of time to allow the CloudWatch client to complete the execution of an API call.
+This timeout covers the entire client execution except for marshalling.
+This includes request handler execution, all HTTP requests including retries, unmarshalling, etc.
+This value should always be positive, if present.
+--|Duration
+|
+
 |===

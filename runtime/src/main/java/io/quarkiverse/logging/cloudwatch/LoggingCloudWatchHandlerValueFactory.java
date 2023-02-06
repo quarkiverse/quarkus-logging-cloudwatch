@@ -28,8 +28,10 @@ import io.quarkiverse.logging.cloudwatch.auth.CloudWatchCredentialsProvider;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
 import io.quarkus.runtime.configuration.ProfileManager;
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient;
+import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClientBuilder;
 import software.amazon.awssdk.services.cloudwatchlogs.model.CreateLogStreamRequest;
 import software.amazon.awssdk.services.cloudwatchlogs.model.DescribeLogStreamsRequest;
 import software.amazon.awssdk.services.cloudwatchlogs.model.LogStream;
@@ -61,10 +63,14 @@ public class LoggingCloudWatchHandlerValueFactory {
 
         LOGGER.infof("Logging to log-group: %s and log-stream: %s", config.logGroup.get(), config.logStreamName.get());
 
-        CloudWatchLogsClient cloudWatchLogsClient = CloudWatchLogsClient.builder()
+        CloudWatchLogsClientBuilder cloudWatchLogsClientBuilder = CloudWatchLogsClient.builder()
                 .credentialsProvider(new CloudWatchCredentialsProvider(config))
-                .region(Region.of(config.region.get()))
-                .build();
+                .region(Region.of(config.region.get()));
+        if (config.apiCallTimeout.isPresent()) {
+            cloudWatchLogsClientBuilder = cloudWatchLogsClientBuilder.overrideConfiguration(
+                    ClientOverrideConfiguration.builder().apiCallTimeout(config.apiCallTimeout.get()).build());
+        }
+        CloudWatchLogsClient cloudWatchLogsClient = cloudWatchLogsClientBuilder.build();
 
         String token = createLogStreamIfNeeded(cloudWatchLogsClient, config);
 

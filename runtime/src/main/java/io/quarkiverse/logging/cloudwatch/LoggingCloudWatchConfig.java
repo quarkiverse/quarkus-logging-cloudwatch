@@ -101,6 +101,14 @@ public class LoggingCloudWatchConfig {
     @ConfigItem
     public Optional<String> serviceEnvironment;
 
+    /**
+     * Amount of time to allow the CloudWatch client to complete the execution of an API call. This timeout covers the
+     * entire client execution except for marshalling. This includes request handler execution, all HTTP requests
+     * including retries, unmarshalling, etc. This value should always be positive, if present.
+     */
+    @ConfigItem
+    public Optional<Duration> apiCallTimeout;
+
     /*
      * We need to validate that the values are present, even if marked as optional.
      * We need to mark them as optional, as otherwise the config would mark them
