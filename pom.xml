@@ -22,7 +22,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <quarkus.version>2.16.4.Final</quarkus.version>
+        <quarkus.version>2.16.6.Final</quarkus.version>
         <awssdk.version>2.20.37</awssdk.version>
         <aws.common.version>1.6.3</aws.common.version>
     </properties>
