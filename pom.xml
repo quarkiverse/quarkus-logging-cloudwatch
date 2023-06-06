@@ -16,7 +16,7 @@
     <module>runtime</module>
   </modules>
   <scm>
-    <connection>:git:git@github.com:quarkiverse/quarkus-logging-cloudwatch.git</connection>
+    <connection>scm:git:git@github.com:quarkiverse/quarkus-logging-cloudwatch.git</connection>
     <developerConnection>scm:git:git@github.com:quarkiverse/quarkus-logging-cloudwatch.git</developerConnection>
     <url>https://github.com/quarkiverse/quarkus-logging-cloudwatch</url>
   </scm>
