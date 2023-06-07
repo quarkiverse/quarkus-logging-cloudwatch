@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.quarkiverse</groupId>
     <artifactId>quarkiverse-parent</artifactId>
-    <version>13</version>
+    <version>14</version>
   </parent>
   <groupId>io.quarkiverse.logging.cloudwatch</groupId>
   <artifactId>quarkus-logging-cloudwatch-parent</artifactId>
@@ -20,7 +20,7 @@
     <developerConnection>scm:git:git@github.com:quarkiverse/quarkus-logging-cloudwatch.git</developerConnection>
     <url>https://github.com/quarkiverse/quarkus-logging-cloudwatch</url>
   </scm>
-  <properties>
+  <properties>   
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
     <maven.compiler.parameters>true</maven.compiler.parameters>
     <maven.compiler.source>11</maven.compiler.source>
@@ -29,7 +29,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.version>3.1.0.Final</quarkus.version>
     <awssdk.version>2.20.74</awssdk.version>
-    <aws.common.version>2.2.0</aws.common.version>
+    <aws.common.version>2.3.0</aws.common.version>
   </properties>
   <dependencyManagement>
     <dependencies>
