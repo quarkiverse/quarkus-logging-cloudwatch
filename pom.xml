@@ -20,7 +20,7 @@
     <developerConnection>scm:git:git@github.com:quarkiverse/quarkus-logging-cloudwatch.git</developerConnection>
     <url>https://github.com/quarkiverse/quarkus-logging-cloudwatch</url>
   </scm>
-  <properties>   
+  <properties>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
     <maven.compiler.parameters>true</maven.compiler.parameters>
     <maven.compiler.source>11</maven.compiler.source>
@@ -71,7 +71,7 @@
         <plugin>
           <groupId>net.revelc.code.formatter</groupId>
           <artifactId>formatter-maven-plugin</artifactId>
-          <version>2.22.0</version>
+          <version>2.23.0</version>
           <executions>
             <execution>
               <goals>
