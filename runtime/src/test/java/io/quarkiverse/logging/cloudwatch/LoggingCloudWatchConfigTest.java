@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 class LoggingCloudWatchConfigTest {
 
-    private final LoggingCloudWatchConfig testee = createPreFilledTestConfig();
+    private final LoggingCloudWatchConfig testee = createPreFilledTestConfig(false);
 
     @Test
     void shouldNotThrowIllegalStateExceptionWhenEveryAttributeIsPresent() {
@@ -85,13 +85,25 @@ class LoggingCloudWatchConfigTest {
         assertEquals("quarkus.log.cloudwatch.log-stream-name", errors.get(1), "Log stream not provided");
     }
 
-    private LoggingCloudWatchConfig createPreFilledTestConfig() {
+    private LoggingCloudWatchConfig createPreFilledTestConfig(boolean defaultCredentialsProviderEnabled) {
         LoggingCloudWatchConfig config = new LoggingCloudWatchConfig();
-        config.accessKeyId = Optional.of("some-access-key-id");
-        config.accessKeySecret = Optional.of("some-access-key-secret");
+        if (!defaultCredentialsProviderEnabled) {
+            config.accessKeyId = Optional.of("some-access-key-id");
+            config.accessKeySecret = Optional.of("some-access-key-secret");
+        } else {
+            config.defaultCredentialsProviderEnabled = true;
+        }
         config.region = Optional.of("some-region");
         config.logGroup = Optional.of("some-log-group");
         config.logStreamName = Optional.of("some-log-stream-name");
         return config;
+    }
+
+    @Test
+    void shouldAskForAwsAccessKeyAndSecretKeyWhenDefaultCredProviderIsEnabled() {
+        LoggingCloudWatchConfig preFilledTestConfig = createPreFilledTestConfig(false);
+
+        List<String> errors = preFilledTestConfig.validate();
+        assertEquals(0, errors.size());
     }
 }
