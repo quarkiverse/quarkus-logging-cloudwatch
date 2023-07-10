@@ -109,12 +109,6 @@ public class LoggingCloudWatchConfig {
     @ConfigItem
     public Optional<Duration> apiCallTimeout;
 
-    /**
-     * Default credentials provider enabled added as a {@code credentials.provider.type.default}
-     */
-    @ConfigItem(name = "credentials.provider.type.default", defaultValue = "false")
-    public boolean defaultCredentialsProviderEnabled;
-
     /*
      * We need to validate that the values are present, even if marked as optional.
      * We need to mark them as optional, as otherwise the config would mark them
@@ -122,16 +116,12 @@ public class LoggingCloudWatchConfig {
      */
     public List<String> validate() {
         List<String> errors = new ArrayList<>();
-
-        if (!defaultCredentialsProviderEnabled) {
-            if (accessKeyId.isEmpty()) {
-                errors.add("quarkus.log.cloudwatch.access-key-id");
-            }
-            if (accessKeySecret.isEmpty()) {
-                errors.add("quarkus.log.cloudwatch.access-key-secret");
-            }
+        if (accessKeyId.isEmpty()) {
+            errors.add("quarkus.log.cloudwatch.access-key-id");
         }
-
+        if (accessKeySecret.isEmpty()) {
+            errors.add("quarkus.log.cloudwatch.access-key-secret");
+        }
         if (region.isEmpty()) {
             errors.add("quarkus.log.cloudwatch.region");
         }
@@ -145,4 +135,3 @@ public class LoggingCloudWatchConfig {
         return errors;
     }
 }
-

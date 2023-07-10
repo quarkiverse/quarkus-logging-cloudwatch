@@ -1,4 +1,4 @@
-//*
+/*
  * Copyright 2021 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
@@ -19,7 +19,6 @@ package io.quarkiverse.logging.cloudwatch.auth;
 import io.quarkiverse.logging.cloudwatch.LoggingCloudWatchConfig;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 
 public class CloudWatchCredentialsProvider implements AwsCredentialsProvider {
 
@@ -31,7 +30,6 @@ public class CloudWatchCredentialsProvider implements AwsCredentialsProvider {
 
     @Override
     public AwsCredentials resolveCredentials() {
-        return config.defaultCredentialsProviderEnabled ? DefaultCredentialsProvider.create().resolveCredentials()
-                : new CloudWatchCredentials(config);
+        return new CloudWatchCredentials(config);
     }
 }
