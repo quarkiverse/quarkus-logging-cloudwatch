@@ -121,4 +121,12 @@ This value should always be positive, if present.
 --|Duration
 |
 
+a| [[quarkus-log-cloudwatch-default-credentials-provider-enabled]]`link:#quarkus-log-cloudwatch-default-credentials-provider-enabled[quarkus.log.cloudwatch.default-credentials-provider.enabled]`
+
+[.description]
+--
+This property allows you to configure the default aws credentials provider for the Quarkus CloudWatch logging feature. By default, it is set to false, indicating that the default credentials provider is disabled.
+--|boolean
+|`false`
+
 |===
