@@ -19,6 +19,7 @@ package io.quarkiverse.logging.cloudwatch.auth;
 import io.quarkiverse.logging.cloudwatch.LoggingCloudWatchConfig;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 
 public class CloudWatchCredentialsProvider implements AwsCredentialsProvider {
 
@@ -30,6 +31,7 @@ public class CloudWatchCredentialsProvider implements AwsCredentialsProvider {
 
     @Override
     public AwsCredentials resolveCredentials() {
-        return new CloudWatchCredentials(config);
+        return config.defaultCredentialsProviderEnabled ? DefaultCredentialsProvider.create().resolveCredentials()
+                : new CloudWatchCredentials(config);
     }
 }
