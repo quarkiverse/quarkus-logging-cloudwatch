@@ -112,7 +112,7 @@ public class LoggingCloudWatchConfig {
     /**
      * Default credentials provider enabled added as a {@code quarkus.log.cloudwatch.default-credentials-provider.enabled}
      */
-    @ConfigItem(name = "quarkus.log.cloudwatch.default-credentials-provider.enabled", defaultValue = "false")
+    @ConfigItem(name = "default-credentials-provider.enabled", defaultValue = "false")
     public boolean defaultCredentialsProviderEnabled;
 
     /*
