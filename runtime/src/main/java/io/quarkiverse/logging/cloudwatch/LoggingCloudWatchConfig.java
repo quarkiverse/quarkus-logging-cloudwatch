@@ -131,7 +131,6 @@ public class LoggingCloudWatchConfig {
         if (logStreamName.isEmpty()) {
             errors.add("quarkus.log.cloudwatch.log-stream-name");
         }
-
         return errors;
     }
 }
