@@ -29,7 +29,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.version>3.2.4.Final</quarkus.version>
-    <awssdk.version>2.20.120</awssdk.version>
+    <awssdk.version>2.20.125</awssdk.version>
     <aws.common.version>2.4.3</aws.common.version>
   </properties>
   <dependencyManagement>
@@ -54,11 +54,6 @@
         <version>${aws.common.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-core</artifactId>
-        <version>2.1</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
