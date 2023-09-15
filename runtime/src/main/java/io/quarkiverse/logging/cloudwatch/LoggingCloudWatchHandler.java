@@ -20,12 +20,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
@@ -79,7 +74,8 @@ class LoggingCloudWatchHandler extends Handler {
             return;
         }
 
-        record.setMessage(String.format(record.getMessage(), record.getParameters()));
+        String format = String.format("%s", record.getMessage());
+        record.setMessage(format);
         ElasticCommonSchemaLogFormatter formatter = new ElasticCommonSchemaLogFormatter(serviceEnvironment);
         String body = formatter.format(record);
 
@@ -94,6 +90,13 @@ class LoggingCloudWatchHandler extends Handler {
             LOGGER.warn(
                     "Maximum size of the CloudWatch log events queue reached. Consider increasing that size from the configuration.");
         }
+    }
+
+    String formatMessage(LogRecord record) {
+        String format = String.format("%s", record.getMessage());
+        record.setMessage(format);
+        ElasticCommonSchemaLogFormatter formatter = new ElasticCommonSchemaLogFormatter(serviceEnvironment);
+        return formatter.format(record);
     }
 
     /**

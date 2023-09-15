@@ -41,7 +41,7 @@ public class ElasticCommonSchemaLogFormatter extends ExtFormatter {
         EcsJsonSerializer.serializeObjectStart(builder, record.getMillis());
         EcsJsonSerializer.serializeLogLevel(builder, record.getLevel().getName());
         EcsJsonSerializer.serializeFormattedMessage(builder, record.getMessage());
-        if (serviceEnvironment.isPresent()) {
+        if (serviceEnvironment != null && serviceEnvironment.isPresent()) {
             serializeField(builder, serviceEnvironment.get());
         }
         EcsJsonSerializer.serializeThreadName(builder, record.getThreadName());
