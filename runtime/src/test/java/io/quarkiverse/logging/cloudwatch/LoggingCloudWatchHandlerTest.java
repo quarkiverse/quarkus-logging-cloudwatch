@@ -1,6 +1,7 @@
 package io.quarkiverse.logging.cloudwatch;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.logging.LogRecord;
 
@@ -35,7 +36,7 @@ class LoggingCloudWatchHandlerTest {
     void shouldFormatPercentageAndReplacePlaceholder() {
         // e.g. log.info("info logging: %", info)
         LogRecord record = new LogRecord(Level.INFO, "Progress: %s%%");
-        record.setParameters(new Object[] {"1337"});
+        record.setParameters(new Object[] { "1337" });
         testee.setLevel(Level.INFO);
 
         String formattedMessage = testee.formatMessage(record);
