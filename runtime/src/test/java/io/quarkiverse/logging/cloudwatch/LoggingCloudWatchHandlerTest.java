@@ -22,13 +22,25 @@ class LoggingCloudWatchHandlerTest {
     }
 
     @Test
-    void shouldFormatPercentage() {
+    void shouldFormatPercentageAsWell() {
         LogRecord record = new LogRecord(Level.INFO, "Progress: 10%");
         testee.setLevel(Level.INFO);
 
         String formattedMessage = testee.formatMessage(record);
 
         assertTrue(formattedMessage.contains("Progress: 10%"));
+    }
+
+    @Test
+    void shouldFormatPercentageAndReplacePlaceholder() {
+        // e.g. log.info("info logging: %", info)
+        LogRecord record = new LogRecord(Level.INFO, "Progress: %s%%");
+        record.setParameters(new Object[] {"1337"});
+        testee.setLevel(Level.INFO);
+
+        String formattedMessage = testee.formatMessage(record);
+
+        assertTrue(formattedMessage.contains("Progress: 1337%"));
     }
 
     @Test

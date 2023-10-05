@@ -74,10 +74,7 @@ class LoggingCloudWatchHandler extends Handler {
             return;
         }
 
-        String format = String.format("%s", record.getMessage());
-        record.setMessage(format);
-        ElasticCommonSchemaLogFormatter formatter = new ElasticCommonSchemaLogFormatter(serviceEnvironment);
-        String body = formatter.format(record);
+        String body = formatMessage(record);
 
         InputLogEvent logEvent = InputLogEvent.builder()
                 .message(body)
@@ -93,10 +90,23 @@ class LoggingCloudWatchHandler extends Handler {
     }
 
     String formatMessage(LogRecord record) {
-        String format = String.format("%s", record.getMessage());
+        String format;
+        if (isLogWithoutFormatPlaceholder(record)) {
+            // e.g. log.info("blabla")
+            format = String.format("%s", record.getMessage());
+        } else {
+            // e.g. log.info("info logging: %", info)
+            format = String.format(record.getMessage(), record.getParameters());
+        }
+
         record.setMessage(format);
         ElasticCommonSchemaLogFormatter formatter = new ElasticCommonSchemaLogFormatter(serviceEnvironment);
+
         return formatter.format(record);
+    }
+
+    private static boolean isLogWithoutFormatPlaceholder(LogRecord record) {
+        return record.getParameters() == null;
     }
 
     /**
