@@ -1,12 +1,12 @@
 package io.quarkiverse.logging.cloudwatch;
 
-import org.jboss.logmanager.Level;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.logging.LogRecord;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.jboss.logmanager.Level;
+import org.junit.jupiter.api.Test;
 
 class LoggingCloudWatchHandlerTest {
 
