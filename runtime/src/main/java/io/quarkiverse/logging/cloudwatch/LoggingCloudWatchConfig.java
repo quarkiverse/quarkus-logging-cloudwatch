@@ -115,6 +115,12 @@ public class LoggingCloudWatchConfig {
     @ConfigItem(name = "default-credentials-provider.enabled", defaultValue = "false")
     public boolean defaultCredentialsProviderEnabled;
 
+    /**
+     * Endpoint override added as {@code endpoint-override}
+     */
+    @ConfigItem(name = "endpoint-override")
+    public Optional<String> endpointOverride;
+
     /*
      * We need to validate that the values are present, even if marked as optional.
      * We need to mark them as optional, as otherwise the config would mark them

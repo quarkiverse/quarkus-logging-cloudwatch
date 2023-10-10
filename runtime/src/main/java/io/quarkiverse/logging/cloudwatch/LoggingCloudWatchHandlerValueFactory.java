@@ -18,6 +18,7 @@ package io.quarkiverse.logging.cloudwatch;
 
 import static io.quarkus.runtime.LaunchMode.DEVELOPMENT;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Handler;
@@ -70,6 +71,10 @@ public class LoggingCloudWatchHandlerValueFactory {
             cloudWatchLogsClientBuilder = cloudWatchLogsClientBuilder.overrideConfiguration(
                     ClientOverrideConfiguration.builder().apiCallTimeout(config.apiCallTimeout.get()).build());
         }
+        if (config.endpointOverride.isPresent()) {
+            cloudWatchLogsClientBuilder.endpointOverride(URI.create(config.endpointOverride.get()));
+        }
+
         CloudWatchLogsClient cloudWatchLogsClient = cloudWatchLogsClientBuilder.build();
 
         String token = createLogStreamIfNeeded(cloudWatchLogsClient, config);
