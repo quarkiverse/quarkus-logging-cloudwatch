@@ -48,6 +48,7 @@ jobs:
           git config --local user.name "GitHub Action"
 
       - name: Update latest release version in docs
+        if: false
         run: |
           mvn -B -ntp -pl docs -am generate-resources -Denforcer.skip -Dformatter.skip -Dimpsort.skip
           if ! git diff --quiet docs/modules/ROOT/pages/includes/attributes.adoc; then
