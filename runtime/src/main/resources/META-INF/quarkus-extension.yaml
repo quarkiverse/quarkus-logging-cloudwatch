@@ -1,9 +1,9 @@
 name: Logging Cloudwatch
-#description: Logging Cloudwatch ...
+description: Send your application logs to AWS CloudWatch
 metadata:
+  categories:
+    - "logging"
 #  keywords:
 #    - logging-cloudwatch
 #  guide: ...
-#  categories:
-#    - "miscellaneous"
 #  status: "preview"

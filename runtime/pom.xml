@@ -8,6 +8,7 @@
     </parent>
     <artifactId>quarkus-logging-cloudwatch</artifactId>
     <name>Quarkus - Logging Cloudwatch - Runtime</name>
+    <description>Send your application logs to AWS CloudWatch</description>
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>
