@@ -26,9 +26,9 @@ import java.util.logging.Handler;
 import org.jboss.logging.Logger;
 
 import io.quarkiverse.logging.cloudwatch.auth.CloudWatchCredentialsProvider;
+import io.quarkus.runtime.LaunchMode;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
-import io.quarkus.runtime.configuration.ProfileManager;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient;
@@ -54,7 +54,7 @@ public class LoggingCloudWatchHandlerValueFactory {
         if (!errors.isEmpty()) {
             String errorMsg = "The Quarkus Logging Cloudwatch extension is unable to start because of missing configuration values: "
                     + String.join(", ", errors);
-            if (ProfileManager.getLaunchMode() == DEVELOPMENT) {
+            if (LaunchMode.current() == DEVELOPMENT) {
                 LOGGER.error(errorMsg);
                 return new RuntimeValue<>(Optional.empty());
             } else {
