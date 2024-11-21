@@ -31,7 +31,7 @@ public class CloudWatchCredentialsProvider implements AwsCredentialsProvider {
 
     @Override
     public AwsCredentials resolveCredentials() {
-        return config.defaultCredentialsProviderEnabled ? DefaultCredentialsProvider.create().resolveCredentials()
+        return config.defaultCredentialsProviderEnabled() ? DefaultCredentialsProvider.create().resolveCredentials()
                 : new CloudWatchCredentials(config);
     }
 }
