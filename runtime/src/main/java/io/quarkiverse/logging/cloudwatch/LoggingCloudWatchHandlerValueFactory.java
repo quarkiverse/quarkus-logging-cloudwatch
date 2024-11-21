@@ -43,7 +43,7 @@ public class LoggingCloudWatchHandlerValueFactory {
     private static final Logger LOGGER = Logger.getLogger(LoggingCloudWatchHandlerValueFactory.class);
 
     public RuntimeValue<Optional<Handler>> create(final LoggingCloudWatchConfig config) {
-        if (!config.enabled) {
+        if (!config.enabled()) {
             LOGGER.info("Quarkus Logging Cloudwatch Extension is not enabled");
             return new RuntimeValue<>(Optional.empty());
         }
@@ -62,27 +62,27 @@ public class LoggingCloudWatchHandlerValueFactory {
             }
         }
 
-        LOGGER.infof("Logging to log-group: %s and log-stream: %s", config.logGroup.get(), config.logStreamName.get());
+        LOGGER.infof("Logging to log-group: %s and log-stream: %s", config.logGroup().get(), config.logStreamName().get());
 
         CloudWatchLogsClientBuilder cloudWatchLogsClientBuilder = CloudWatchLogsClient.builder()
                 .credentialsProvider(new CloudWatchCredentialsProvider(config))
-                .region(Region.of(config.region.get()));
-        if (config.apiCallTimeout.isPresent()) {
+                .region(Region.of(config.region().get()));
+        if (config.apiCallTimeout().isPresent()) {
             cloudWatchLogsClientBuilder = cloudWatchLogsClientBuilder.overrideConfiguration(
-                    ClientOverrideConfiguration.builder().apiCallTimeout(config.apiCallTimeout.get()).build());
+                    ClientOverrideConfiguration.builder().apiCallTimeout(config.apiCallTimeout().get()).build());
         }
-        if (config.endpointOverride.isPresent()) {
-            cloudWatchLogsClientBuilder.endpointOverride(URI.create(config.endpointOverride.get()));
+        if (config.endpointOverride().isPresent()) {
+            cloudWatchLogsClientBuilder.endpointOverride(URI.create(config.endpointOverride().get()));
         }
 
         CloudWatchLogsClient cloudWatchLogsClient = cloudWatchLogsClientBuilder.build();
 
         String token = createLogStreamIfNeeded(cloudWatchLogsClient, config);
 
-        LoggingCloudWatchHandler handler = new LoggingCloudWatchHandler(cloudWatchLogsClient, config.logGroup.get(),
-                config.logStreamName.get(), token, config.maxQueueSize, config.batchSize, config.batchPeriod,
-                config.serviceEnvironment);
-        handler.setLevel(config.level);
+        LoggingCloudWatchHandler handler = new LoggingCloudWatchHandler(cloudWatchLogsClient, config.logGroup().get(),
+                config.logStreamName().get(), token, config.maxQueueSize(), config.batchSize(), config.batchPeriod(),
+                config.serviceEnvironment());
+        handler.setLevel(config.level());
 
         return new RuntimeValue<>(Optional.of(handler));
     }
@@ -91,15 +91,15 @@ public class LoggingCloudWatchHandlerValueFactory {
         String token = null;
 
         DescribeLogStreamsRequest describeLogStreamsRequest = DescribeLogStreamsRequest.builder()
-                .logGroupName(config.logGroup.get())
+                .logGroupName(config.logGroup().get())
                 // We need to filter down, as CW returns by default only 50 streams and ours may not be in it.
-                .logStreamNamePrefix(config.logStreamName.get())
+                .logStreamNamePrefix(config.logStreamName().get())
                 .build();
         List<LogStream> logStreams = cloudWatchLogsClient.describeLogStreams(describeLogStreamsRequest).logStreams();
 
         boolean found = false;
         for (LogStream ls : logStreams) {
-            if (ls.logStreamName().equals(config.logStreamName.get())) {
+            if (ls.logStreamName().equals(config.logStreamName().get())) {
                 found = true;
                 token = ls.uploadSequenceToken();
             }
@@ -107,8 +107,8 @@ public class LoggingCloudWatchHandlerValueFactory {
 
         if (!found) {
             CreateLogStreamRequest createLogStreamRequest = CreateLogStreamRequest.builder()
-                    .logGroupName(config.logGroup.get())
-                    .logStreamName(config.logStreamName.get())
+                    .logGroupName(config.logGroup().get())
+                    .logStreamName(config.logStreamName().get())
                     .build();
             cloudWatchLogsClient.createLogStream(createLogStreamRequest);
         }

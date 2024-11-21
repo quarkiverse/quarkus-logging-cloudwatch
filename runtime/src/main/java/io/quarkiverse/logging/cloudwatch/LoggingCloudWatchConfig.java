@@ -22,127 +22,133 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 
-import io.quarkus.runtime.annotations.ConfigItem;
 import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
+import io.smallrye.config.ConfigMapping;
+import io.smallrye.config.WithDefault;
+import io.smallrye.config.WithName;
 
 /**
  * Configuration for CloudWatch logging.
  */
-@ConfigRoot(phase = ConfigPhase.RUN_TIME, name = "log.cloudwatch")
-public class LoggingCloudWatchConfig {
+@ConfigRoot(phase = ConfigPhase.RUN_TIME)
+@ConfigMapping(prefix = "quarkus.log.cloudwatch")
+public interface LoggingCloudWatchConfig {
 
     /**
      * Determine whether to enable the Cloudwatch logging extension.
      */
-    @ConfigItem(defaultValue = "true")
-    boolean enabled;
+    @WithName("enabled")
+    @WithDefault("true")
+    boolean enabled();
 
     /**
-     * CW access key ID
+     * The AWS CloudWatch access key id
      */
-    @ConfigItem
-    public Optional<String> accessKeyId;
+    @WithName("access-key-id")
+    Optional<String> accessKeyId();
 
     /**
-     * CW access key secret
+     * The AWS CloudWatch access key secret
      */
-    @ConfigItem
-    public Optional<String> accessKeySecret;
+    @WithName("access-key-secret")
+    Optional<String> accessKeySecret();
 
     /**
      * Region of deployment
      */
-    @ConfigItem
-    public Optional<String> region;
+    @WithName("region")
+    Optional<String> region();
 
     /**
      * CW log group
      */
-    @ConfigItem
-    public Optional<String> logGroup;
+    @WithName("log-group")
+    Optional<String> logGroup();
 
     /**
      * CW log stream
      */
-    @ConfigItem
-    public Optional<String> logStreamName;
+    @WithName("log-stream-name")
+    Optional<String> logStreamName();
 
     /**
      * The CW log level.
      */
-    @ConfigItem(defaultValue = "WARN")
-    public Level level;
+    @WithName("level")
+    @WithDefault("WARN")
+    Level level();
 
     /**
      * Number of log events sent to CloudWatch per batch.
      * Defaults to 10,000 which is the maximum number of log events per batch allowed by CloudWatch.
      */
-    @ConfigItem(defaultValue = "10000")
-    public int batchSize;
+    @WithDefault("10000")
+    int batchSize();
 
     /**
      * Period between two batch executions.
      * Defaults to 5 seconds.
      */
-    @ConfigItem(defaultValue = "5s")
-    public Duration batchPeriod;
+    @WithDefault("5s")
+    Duration batchPeriod();
 
     /**
      * Maximum size of the log events queue.
      * If this is not set, the queue will have a capacity of {@link Integer#MAX_VALUE}.
      */
-    @ConfigItem
-    public Optional<Integer> maxQueueSize;
+    @WithName("max-queue-size")
+    Optional<Integer> maxQueueSize();
 
     /**
      * Service environment added as a {@code service.environment} field to each log record when available.
      */
-    @ConfigItem
-    public Optional<String> serviceEnvironment;
+    @WithName("service-environment")
+    Optional<String> serviceEnvironment();
 
     /**
      * Amount of time to allow the CloudWatch client to complete the execution of an API call. This timeout covers the
      * entire client execution except for marshalling. This includes request handler execution, all HTTP requests
      * including retries, unmarshalling, etc. This value should always be positive, if present.
      */
-    @ConfigItem
-    public Optional<Duration> apiCallTimeout;
+    @WithName("api-call-timeout")
+    Optional<Duration> apiCallTimeout();
 
     /**
      * Default credentials provider enabled added as a {@code quarkus.log.cloudwatch.default-credentials-provider.enabled}
      */
-    @ConfigItem(name = "default-credentials-provider.enabled", defaultValue = "false")
-    public boolean defaultCredentialsProviderEnabled;
+    @WithName("default-credentials-provider.enabled")
+    @WithDefault("false")
+    boolean defaultCredentialsProviderEnabled();
 
     /**
      * Endpoint override added as {@code endpoint-override}
      */
-    @ConfigItem(name = "endpoint-override")
-    public Optional<String> endpointOverride;
+    @WithName("endpoint-override")
+    Optional<String> endpointOverride();
 
     /*
      * We need to validate that the values are present, even if marked as optional.
      * We need to mark them as optional, as otherwise the config would mark them
      * as bad even before the extension can check if the values are needed at all.
      */
-    public List<String> validate() {
+    default List<String> validate() {
         List<String> errors = new ArrayList<>();
-        if (!defaultCredentialsProviderEnabled) {
-            if (accessKeyId.isEmpty()) {
+        if (!defaultCredentialsProviderEnabled()) {
+            if (accessKeyId().isEmpty()) {
                 errors.add("quarkus.log.cloudwatch.access-key-id");
             }
-            if (accessKeySecret.isEmpty()) {
+            if (accessKeySecret().isEmpty()) {
                 errors.add("quarkus.log.cloudwatch.access-key-secret");
             }
         }
-        if (region.isEmpty()) {
+        if (region().isEmpty()) {
             errors.add("quarkus.log.cloudwatch.region");
         }
-        if (logGroup.isEmpty()) {
+        if (logGroup().isEmpty()) {
             errors.add("quarkus.log.cloudwatch.log-group");
         }
-        if (logStreamName.isEmpty()) {
+        if (logStreamName().isEmpty()) {
             errors.add("quarkus.log.cloudwatch.log-stream-name");
         }
         return errors;
