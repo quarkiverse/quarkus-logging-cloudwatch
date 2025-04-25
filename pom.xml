@@ -30,7 +30,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.version>3.21.3</quarkus.version>
     <awssdk.version>2.31.27</awssdk.version>
-    <aws.common.version>3.4.0</aws.common.version>
+    <aws.common.version>3.4.1</aws.common.version>
   </properties>
   <dependencyManagement>
     <dependencies>
