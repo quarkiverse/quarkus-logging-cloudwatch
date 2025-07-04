@@ -36,13 +36,14 @@ class LoggingCloudWatchHandler extends Handler {
 
     private static final Logger LOGGER = Logger.getLogger(LoggingCloudWatchHandler.class);
     private static final int BATCH_MAX_ATTEMPTS = 10;
-
+    private static final String TRUNCATED_TAG = " (...)";
     private CloudWatchLogsClient cloudWatchLogsClient;
     private String logStreamName;
     private String logGroupName;
     private String sequenceToken;
     private int batchSize;
     private Optional<String> serviceEnvironment;
+    private int maxMessageLength;
 
     private BlockingQueue<InputLogEvent> eventBuffer;
 
@@ -54,7 +55,8 @@ class LoggingCloudWatchHandler extends Handler {
     }
 
     LoggingCloudWatchHandler(CloudWatchLogsClient cloudWatchLogsClient, String logGroup, String logStreamName, String token,
-            Optional<Integer> maxQueueSize, int batchSize, Duration batchPeriod, Optional<String> serviceEnvironment) {
+            Optional<Integer> maxQueueSize, int batchSize, Duration batchPeriod, Optional<String> serviceEnvironment,
+            int maxMessageLength) {
         this.logGroupName = logGroup;
         this.cloudWatchLogsClient = cloudWatchLogsClient;
         this.logStreamName = logStreamName;
@@ -63,6 +65,7 @@ class LoggingCloudWatchHandler extends Handler {
                 .orElseGet(LinkedBlockingQueue::new);
         this.batchSize = batchSize;
         this.serviceEnvironment = serviceEnvironment;
+        this.maxMessageLength = maxMessageLength;
 
         this.publisher = new Publisher();
         scheduler.scheduleAtFixedRate(publisher, 5, batchPeriod.toMillis(), TimeUnit.MILLISECONDS);
@@ -98,11 +101,14 @@ class LoggingCloudWatchHandler extends Handler {
             // e.g. log.info("info logging: %", info)
             format = String.format(record.getMessage(), record.getParameters());
         }
-
         record.setMessage(format);
         ElasticCommonSchemaLogFormatter formatter = new ElasticCommonSchemaLogFormatter(serviceEnvironment);
 
-        return formatter.format(record);
+        String formattedMessage = formatter.format(record);
+        if (maxMessageLength > 0 && formattedMessage.length() > maxMessageLength) {
+            return formattedMessage.substring(0, maxMessageLength - TRUNCATED_TAG.length()) + TRUNCATED_TAG;
+        }
+        return formattedMessage;
     }
 
     private static boolean isLogWithoutFormatPlaceholder(LogRecord record) {

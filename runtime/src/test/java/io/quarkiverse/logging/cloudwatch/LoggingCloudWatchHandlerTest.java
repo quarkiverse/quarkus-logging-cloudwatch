@@ -1,10 +1,12 @@
 package io.quarkiverse.logging.cloudwatch;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.Duration;
+import java.util.Optional;
 import java.util.logging.LogRecord;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.logmanager.Level;
 import org.junit.jupiter.api.Test;
 
@@ -77,5 +79,22 @@ class LoggingCloudWatchHandlerTest {
         LogRecord record = new LogRecord(Level.INFO, "someMessage");
         testee.setLevel(Level.SEVERE);
         assertTrue(testee.isBelowThreshold(record));
+    }
+
+    @Test
+    void shouldTruncateTooLongMessages() {
+        LogRecord record = new LogRecord(Level.INFO, RandomStringUtils.secure().next(1000));
+        testee.setLevel(Level.INFO);
+
+        String formattedMessage = testee.formatMessage(record);
+
+        assertTrue(formattedMessage.length() > 1000);
+
+        LoggingCloudWatchHandler testeeWithMessageLimit = new LoggingCloudWatchHandler(null, null, null, null, Optional.empty(),
+                0, Duration.ofSeconds(5), Optional.empty(), 500);
+        formattedMessage = testeeWithMessageLimit.formatMessage(record);
+
+        assertEquals(500, formattedMessage.length());
+        assertTrue(formattedMessage.endsWith(" (...)"));
     }
 }
