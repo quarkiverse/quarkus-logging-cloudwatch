@@ -81,7 +81,7 @@ public class LoggingCloudWatchHandlerValueFactory {
 
         LoggingCloudWatchHandler handler = new LoggingCloudWatchHandler(cloudWatchLogsClient, config.logGroup().get(),
                 config.logStreamName().get(), token, config.maxQueueSize(), config.batchSize(), config.batchPeriod(),
-                config.serviceEnvironment());
+                config.serviceEnvironment(), config.maxMessageLength());
         handler.setLevel(config.level());
 
         return new RuntimeValue<>(Optional.of(handler));

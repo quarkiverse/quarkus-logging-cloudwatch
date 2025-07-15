@@ -127,6 +127,15 @@ public interface LoggingCloudWatchConfig {
     @WithName("endpoint-override")
     Optional<String> endpointOverride();
 
+    /**
+     * Max message length
+     * The message will be truncated if it exceeds this value.
+     * 0 means no limit.
+     */
+    @WithName("max-message-length")
+    @WithDefault("0")
+    int maxMessageLength();
+
     /*
      * We need to validate that the values are present, even if marked as optional.
      * We need to mark them as optional, as otherwise the config would mark them
