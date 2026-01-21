@@ -18,6 +18,7 @@ package io.quarkiverse.logging.cloudwatch;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -81,7 +82,7 @@ class LoggingCloudWatchHandler extends Handler {
 
         InputLogEvent logEvent = InputLogEvent.builder()
                 .message(body)
-                .timestamp(System.currentTimeMillis())
+                .timestamp(record.getInstant().toEpochMilli())
                 .build();
 
         // Queue this up, so that it can be flushed later in batch asynchronously
@@ -143,7 +144,10 @@ class LoggingCloudWatchHandler extends Handler {
                 // First, let's poll from the queue the events that will be part of the batch.
                 List<InputLogEvent> events = new ArrayList<>(Math.min(eventBuffer.size(), batchSize));
                 eventBuffer.drainTo(events, batchSize);
-                if (events.size() > 0) {
+                if (!events.isEmpty()) {
+
+                    // Sort events by timestamp in ascending order as required by CloudWatch
+                    events.sort(Comparator.comparing(InputLogEvent::timestamp));
 
                     // The sequence token needed for this request is set below.
                     PutLogEventsRequest request = PutLogEventsRequest.builder()
