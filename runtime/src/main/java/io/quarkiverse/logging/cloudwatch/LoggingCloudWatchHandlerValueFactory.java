@@ -42,7 +42,14 @@ public class LoggingCloudWatchHandlerValueFactory {
 
     private static final Logger LOGGER = Logger.getLogger(LoggingCloudWatchHandlerValueFactory.class);
 
-    public RuntimeValue<Optional<Handler>> create(final LoggingCloudWatchConfig config) {
+    private final RuntimeValue<LoggingCloudWatchConfig> config;
+
+    public LoggingCloudWatchHandlerValueFactory(RuntimeValue<LoggingCloudWatchConfig> config) {
+        this.config = config;
+    }
+
+    public RuntimeValue<Optional<Handler>> create() {
+        LoggingCloudWatchConfig config = this.config.getValue();
         if (!config.enabled()) {
             LOGGER.info("Quarkus Logging Cloudwatch Extension is not enabled");
             return new RuntimeValue<>(Optional.empty());
